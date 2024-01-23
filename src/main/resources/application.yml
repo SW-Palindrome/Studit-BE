@@ -8,3 +8,11 @@ logging:
 spring:
   main:
     banner-mode: console
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_SECRET_ID}
