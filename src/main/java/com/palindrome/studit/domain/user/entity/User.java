@@ -1,41 +1,45 @@
-package com.palindrome.studit.domain.user.domain;
+package com.palindrome.studit.domain.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.util.Date;
+import lombok.*;
 
 @Entity
-public class User {
+@NoArgsConstructor
+public class User extends BaseEntity {
 
     @Id
-    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "USER_ID")
+    private Long userId;
 
-    @Column(name = "", length=50, unique = true)
+    @Column(length = 50, unique = true)
+    @Size(max = 50)
     @NotNull
     private String email;
 
-    @Size(min=2, max=15)
+    @Column(length = 15)
+    @Size(min = 2, max = 15)
+    @NotBlank
     private String nickname;
 
+    @Column(name = "PROFILE_IMAGE")
     @NotNull
     private String profileImage;
 
+    @Column(name = "AGREE_TOS")
     @NotNull
     private boolean agreeTOS;
 
+    @Column(name = "AGREE_PICU")
     @NotNull
     private boolean agreePICU;
 
+    @Column(name = "ROLE_TYPE")
     @Enumerated(EnumType.STRING)
     @NotNull
-    private UserRole role;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private Date createdDate;
+    private UserRoleType roleType;
 
 }
