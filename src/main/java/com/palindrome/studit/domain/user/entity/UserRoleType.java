@@ -1,5 +1,5 @@
 package com.palindrome.studit.domain.user.entity;
 
-public enum UserRole {
+public enum UserRoleType {
     USER, ADMIN;
 }
