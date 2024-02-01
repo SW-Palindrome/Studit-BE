@@ -1,5 +1,5 @@
 package com.palindrome.studit.enums;
 
-enum class OAuthProviderType {
+public enum OAuthProviderType {
     GITHUB,
 }
