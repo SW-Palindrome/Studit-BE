@@ -13,7 +13,7 @@ public class TokenService {
     private static final String EMAIL_CLAIM = "email";
     private static final int ACCESS_TOKEN_EXPIRE_PERIOD = 15 * 60 * 1000;  // 15분
 
-    public String createAccessToken(String email) {
+    public static String createAccessToken(String email) {
         Date now = new Date();
         Algorithm algorithm = Algorithm.HMAC512(SECRET);
         return JWT.create()
@@ -23,7 +23,7 @@ public class TokenService {
                 .sign(algorithm);
     }
 
-    public boolean validateToken(String token) {
+    public static boolean validateToken(String token) {
         try {
             return JWT.require(Algorithm.HMAC512(SECRET)).build().verify(token) != null;
         } catch (JWTVerificationException e) {

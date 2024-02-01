@@ -11,10 +11,6 @@ public class InMemoryUserRepository {
     private final HashMap<String, OAuthInfo> oAuthInfoMap = new HashMap<>();
 
     public void saveUser(OAuthInfo oAuthInfo) {
-        System.out.println(oAuthInfoMap);
-        if (oAuthInfoMap.get(oAuthInfo.getProviderId()) != null) {
-            System.out.println("provider id duplicated!");
-        }
         oAuthInfoMap.put(oAuthInfo.getProviderId(), oAuthInfo);
     }
 

@@ -20,16 +20,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        createUser(userRequest.getClientRegistration());
-        String email = oAuth2User.getAttribute("email");
-        if (email != null) {
-            System.out.println(email);
-        }
-        return oAuth2User;
+        User user = createUser(userRequest.getClientRegistration());
+        return new CustomOAuth2User(user, oAuth2User.getAttributes());
     }
 
-    private void createUser(ClientRegistration clientRegistration) {
+    private User createUser(ClientRegistration clientRegistration) {
         User user = new User();
+        user.setNickName(clientRegistration.getClientId());
         OAuthInfo oAuthInfo = new OAuthInfo();
         oAuthInfo.setUser(user);
         switch (clientRegistration.getRegistrationId()) {
@@ -39,5 +36,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         oAuthInfo.setProviderId(clientRegistration.getClientId());
         inMemoryUserRepository.saveUser(oAuthInfo);
+        return user;
     }
 }
