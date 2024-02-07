@@ -1,6 +1,6 @@
 package com.palindrome.studit.security;
 
-import com.palindrome.studit.enums.OAuthProviderType;
+import com.palindrome.studit.domain.user.entity.OAuthProviderType;
 import com.palindrome.studit.model.OAuthInfo;
 import com.palindrome.studit.model.User;
 import com.palindrome.studit.repository.InMemoryUserRepository;
