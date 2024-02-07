@@ -3,7 +3,9 @@ package com.palindrome.studit.security;
 import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;
 import com.palindrome.studit.domain.user.entity.User;
-import com.palindrome.studit.repository.InMemoryUserRepository;
+import com.palindrome.studit.domain.user.entity.UserRoleType;
+import com.palindrome.studit.repository.OAuthInfoRepository;
+import com.palindrome.studit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -15,7 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-    private final InMemoryUserRepository inMemoryUserRepository;
+    private final UserRepository userRepository;
+    private final OAuthInfoRepository oAuthInfoRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -25,7 +28,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private User createUser(OAuth2User oAuth2User, ClientRegistration clientRegistration) throws OAuth2AuthenticationException {
-        User user = User.builder().email(oAuth2User.getAttribute("email")).build();
+        User user = User.builder().email(oAuth2User.getAttribute("email")).roleType(UserRoleType.USER).build();
+        userRepository.save(user);
         OAuthInfo oAuthInfo;
         switch (clientRegistration.getRegistrationId()) {
             case "github":
@@ -37,7 +41,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default:
                 throw new OAuth2AuthenticationException("client id not match");
         }
-        inMemoryUserRepository.saveUser(oAuthInfo);
+        oAuthInfoRepository.save(oAuthInfo);
         return user;
     }
 }

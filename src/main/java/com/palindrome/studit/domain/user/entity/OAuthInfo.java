@@ -30,10 +30,8 @@ public class OAuthInfo extends BaseEntity {
     private String providerId;
 
     @Size(max = 40)
-    @NotBlank
     private String refreshToken;
 
-    @NotNull
     private LocalDateTime expiredDate;
 
     @Builder

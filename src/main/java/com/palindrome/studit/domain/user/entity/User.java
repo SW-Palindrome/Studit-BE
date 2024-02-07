@@ -23,19 +23,15 @@ public class User extends BaseEntity {
 
     @Column(length = 15)
     @Size(min = 2, max = 15)
-    @NotBlank
     private String nickname;
 
     @Column(name = "PROFILE_IMAGE")
-    @NotNull
     private String profileImage;
 
     @Column(name = "AGREE_TOS")
-    @NotNull
     private boolean agreeTOS;
 
     @Column(name = "AGREE_PICU")
-    @NotNull
     private boolean agreePICU;
 
     @Column(name = "ROLE_TYPE")
@@ -44,8 +40,10 @@ public class User extends BaseEntity {
     private UserRoleType roleType;
 
     @Builder
-    public User(String email) {
+    public User(String email, UserRoleType roleType) {
+
         this.email = email;
+        this.roleType = roleType;
     }
 
 }
