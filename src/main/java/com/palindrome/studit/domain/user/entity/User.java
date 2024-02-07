@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Entity
+@Getter
 @NoArgsConstructor
 public class User extends BaseEntity {
 
@@ -41,5 +42,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @NotNull
     private UserRoleType roleType;
+
+    @Builder
+    public User(String email) {
+        this.email = email;
+    }
 
 }

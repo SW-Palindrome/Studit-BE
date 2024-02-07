@@ -1,6 +1,6 @@
 package com.palindrome.studit.security;
 
-import com.palindrome.studit.model.User;
+import com.palindrome.studit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -25,6 +25,6 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return this.user.getNickName();
+        return this.user.getUserId().toString();
     }
 }

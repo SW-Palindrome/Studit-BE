@@ -1,8 +1,8 @@
 package com.palindrome.studit.security;
 
+import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;
-import com.palindrome.studit.model.OAuthInfo;
-import com.palindrome.studit.model.User;
+import com.palindrome.studit.domain.user.entity.User;
 import com.palindrome.studit.repository.InMemoryUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -20,21 +20,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        User user = createUser(userRequest.getClientRegistration());
+        User user = createUser(oAuth2User, userRequest.getClientRegistration());
         return new CustomOAuth2User(user, oAuth2User.getAttributes());
     }
 
-    private User createUser(ClientRegistration clientRegistration) {
-        User user = new User();
-        user.setNickName(clientRegistration.getClientId());
-        OAuthInfo oAuthInfo = new OAuthInfo();
-        oAuthInfo.setUser(user);
+    private User createUser(OAuth2User oAuth2User, ClientRegistration clientRegistration) throws OAuth2AuthenticationException {
+        User user = User.builder().email(oAuth2User.getAttribute("email")).build();
+        OAuthInfo oAuthInfo;
         switch (clientRegistration.getRegistrationId()) {
             case "github":
-                oAuthInfo.setOAuthProviderType(OAuthProviderType.GITHUB);
+                oAuthInfo = OAuthInfo.builder()
+                        .user(user)
+                        .provider(OAuthProviderType.GITHUB)
+                        .providerId(clientRegistration.getClientId()).build();
                 break;
+            default:
+                throw new OAuth2AuthenticationException("client id not match");
         }
-        oAuthInfo.setProviderId(clientRegistration.getClientId());
         inMemoryUserRepository.saveUser(oAuthInfo);
         return user;
     }

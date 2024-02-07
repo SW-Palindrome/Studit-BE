@@ -1,7 +1,6 @@
 package com.palindrome.studit.repository;
 
-import com.palindrome.studit.model.OAuthInfo;
-import com.palindrome.studit.model.User;
+import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -12,9 +11,5 @@ public class InMemoryUserRepository {
 
     public void saveUser(OAuthInfo oAuthInfo) {
         oAuthInfoMap.put(oAuthInfo.getProviderId(), oAuthInfo);
-    }
-
-    public User getUser(String providerId) {
-        return oAuthInfoMap.get(providerId).getUser();
     }
 }
