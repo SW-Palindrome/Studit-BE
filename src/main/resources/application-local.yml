@@ -1,22 +1,16 @@
 spring:
-  main:
-    banner-mode: off
   config:
-    activate:
-      on-profile: local
-    import: classpath:config/local-config.properties
+    import: classpath:../resources/config/local-config.properties
   datasource:
-    url: jdbc:h2:tcp://localhost/~/test
-    driver-class-name: org.h2.Driver
-    username: sa
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
+    database: postgresql
     hibernate:
-      ddl-auto: create
-    defer-datasource-initialization: true
-  sql:
-    init:
-      data-locations: classpath:db/data.sql
-      mode: always
-server:
-  address: 127.0.0.1
+      ddl-auto: none
+logging:
+  level:
+    root: info
