@@ -1,6 +1,6 @@
 spring:
   config:
-    import: classpath:../resources/config/local-config.properties
+    import: classpath:config/local-config.properties
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
