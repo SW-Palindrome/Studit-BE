@@ -1,5 +1,6 @@
 package com.palindrome.studit.security;
 
+import com.palindrome.studit.domain.user.application.UserService;
 import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;
 import com.palindrome.studit.domain.user.entity.User;
@@ -17,31 +18,21 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-    private final UserRepository userRepository;
-    private final OAuthInfoRepository oAuthInfoRepository;
+    private final UserService userService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        User user = createUser(oAuth2User, userRequest.getClientRegistration());
-        return new CustomOAuth2User(user, oAuth2User.getAttributes());
-    }
-
-    private User createUser(OAuth2User oAuth2User, ClientRegistration clientRegistration) throws OAuth2AuthenticationException {
-        User user = User.builder().email(oAuth2User.getAttribute("email")).roleType(UserRoleType.USER).build();
-        userRepository.save(user);
-        OAuthInfo oAuthInfo;
-        switch (clientRegistration.getRegistrationId()) {
+        ClientRegistration clientRegistration = userRequest.getClientRegistration();
+        OAuthProviderType oAuthProviderType;
+        switch (userRequest.getClientRegistration().getRegistrationId()) {
             case "github":
-                oAuthInfo = OAuthInfo.builder()
-                        .user(user)
-                        .provider(OAuthProviderType.GITHUB)
-                        .providerId(clientRegistration.getClientId()).build();
+                oAuthProviderType = OAuthProviderType.GITHUB;
                 break;
             default:
                 throw new OAuth2AuthenticationException("client id not match");
         }
-        oAuthInfoRepository.save(oAuthInfo);
-        return user;
+        User user = userService.create(oAuth2User.getAttribute("email"), oAuthProviderType, clientRegistration.getClientId());
+        return new CustomOAuth2User(user, oAuth2User.getAttributes());
     }
 }

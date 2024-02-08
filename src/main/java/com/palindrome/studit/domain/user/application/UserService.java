@@ -1,0 +1,30 @@
+package com.palindrome.studit.domain.user.application;
+
+import com.palindrome.studit.domain.user.entity.OAuthInfo;
+import com.palindrome.studit.domain.user.entity.OAuthProviderType;
+import com.palindrome.studit.domain.user.entity.User;
+import com.palindrome.studit.domain.user.entity.UserRoleType;
+import com.palindrome.studit.repository.OAuthInfoRepository;
+import com.palindrome.studit.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository userRepository;
+    private final OAuthInfoRepository oAuthInfoRepository;
+
+    @Transactional
+    public User create(String email, OAuthProviderType providerType, String providerId) {
+        User user = User.builder().email(email).roleType(UserRoleType.USER).build();
+        userRepository.save(user);
+        OAuthInfo oAuthInfo = OAuthInfo.builder()
+                .user(user)
+                .provider(providerType)
+                .providerId(providerId).build();
+        oAuthInfoRepository.save(oAuthInfo);
+        return user;
+    }
+}
