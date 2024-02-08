@@ -1,4 +1,4 @@
-package com.palindrome.studit.domain.user.entity;
+package com.palindrome.studit.global.utils;
 
 import jakarta.persistence.*;
 import lombok.Getter;
