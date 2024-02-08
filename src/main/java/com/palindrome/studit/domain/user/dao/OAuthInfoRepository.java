@@ -1,4 +1,4 @@
-package com.palindrome.studit.repository;
+package com.palindrome.studit.domain.user.dao;
 
 import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import org.springframework.data.jpa.repository.JpaRepository;

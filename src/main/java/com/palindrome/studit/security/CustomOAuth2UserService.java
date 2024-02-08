@@ -1,12 +1,8 @@
 package com.palindrome.studit.security;
 
 import com.palindrome.studit.domain.user.application.UserService;
-import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;
 import com.palindrome.studit.domain.user.entity.User;
-import com.palindrome.studit.domain.user.entity.UserRoleType;
-import com.palindrome.studit.repository.OAuthInfoRepository;
-import com.palindrome.studit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
