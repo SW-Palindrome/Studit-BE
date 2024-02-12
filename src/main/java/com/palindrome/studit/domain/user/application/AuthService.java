@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -21,6 +23,10 @@ public class AuthService {
 
     @Transactional
     public User createUser(String email, OAuthProviderType providerType, String providerId) {
+        Optional<User> existUser = userRepository.findByEmail(email);
+        if (existUser.isPresent()) {
+            return existUser.get();
+        }
         User user = User.builder().email(email).roleType(UserRoleType.USER).build();
         userRepository.save(user);
         OAuthInfo oAuthInfo = OAuthInfo.builder()

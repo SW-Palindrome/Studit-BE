@@ -1,7 +1,7 @@
 package com.palindrome.studit.user.repository;
 
 import com.palindrome.studit.domain.user.dao.UserRepository;
-import com.palindrome.studit.domain.user.entity.User;
+import com.palindrome.studit.domain.user.entity.Member;
 import com.palindrome.studit.domain.user.entity.UserRoleType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2, replace = AutoConfigureTestDatabase.Replace.NONE)
-public class UserRepositoryTest {
+public class MemberRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
@@ -27,7 +27,7 @@ public class UserRepositoryTest {
     @DisplayName("유저 생성 테스트")
     void createUserTest() {
         //Given
-        User user = User.builder()
+        Member member = Member.builder()
                 .email("swm.palindrome@gmail.com")
                 .nickname("palindrome")
                 .profileImage("https://palworld.shwa.space/assets/PalIcon/T_PinkCat_icon_normal.png")
@@ -36,15 +36,15 @@ public class UserRepositoryTest {
                 .roleType(UserRoleType.ADMIN)
                 .build();
 
-        userRepository.save(user);
+        userRepository.save(member);
 
         //When
-        User savedUser = userRepository.findByNickname("palindrome");
+        Member savedMember = userRepository.findByNickname("palindrome");
 
         //Then
-        assertThat(savedUser.getEmail()).isEqualTo("swm.palindrome@gmail.com");
-        assertThat(savedUser.getRoleType()).isEqualTo(UserRoleType.ADMIN);
-        assertThat(savedUser.getCreatedDate()).isNotNull();
+        assertThat(savedMember.getEmail()).isEqualTo("swm.palindrome@gmail.com");
+        assertThat(savedMember.getRoleType()).isEqualTo(UserRoleType.ADMIN);
+        assertThat(savedMember.getCreatedDate()).isNotNull();
     }
 
     @Test
@@ -53,11 +53,11 @@ public class UserRepositoryTest {
         //Given: data.sql
 
         //When
-        List<User> users = userRepository.findAll();
+        List<Member> members = userRepository.findAll();
 
         //Then
-        assertThat(users).isNotEmpty();
-        assertThat(users.get(0).getNickname()).isEqualTo("USER1");
-        assertThat(users.get(1).getNickname()).isEqualTo("USER2");
+        assertThat(members).isNotEmpty();
+        assertThat(members.get(0).getNickname()).isEqualTo("USER1");
+        assertThat(members.get(1).getNickname()).isEqualTo("USER2");
     }
 }

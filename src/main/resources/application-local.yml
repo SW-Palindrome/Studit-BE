@@ -10,7 +10,7 @@ spring:
     show-sql: true
     database: postgresql
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
 logging:
   level:
     root: info
