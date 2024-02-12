@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class OAuthInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long oauth_info_Id;
 
     @OneToOne
     @JoinColumn(name="user_id")
@@ -29,15 +29,17 @@ public class OAuthInfo extends BaseEntity {
     @NotBlank
     private String providerId;
 
-    @Size(max = 40)
+    @Size(max = 255)
     private String refreshToken;
-
-    private LocalDateTime expiredDate;
 
     @Builder
     public OAuthInfo(User user, OAuthProviderType provider, String providerId) {
         this.user = user;
         this.provider = provider;
         this.providerId = providerId;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

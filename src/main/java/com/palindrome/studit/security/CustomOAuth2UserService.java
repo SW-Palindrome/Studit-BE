@@ -1,6 +1,6 @@
 package com.palindrome.studit.security;
 
-import com.palindrome.studit.domain.user.application.UserService;
+import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;
 import com.palindrome.studit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-    private final UserService userService;
+    private final AuthService authService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -28,7 +28,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default:
                 throw new OAuth2AuthenticationException("client id not match");
         }
-        User user = userService.create(oAuth2User.getAttribute("email"), oAuthProviderType, clientRegistration.getClientId());
+        User user = authService.createUser(oAuth2User.getAttribute("email"), oAuthProviderType, clientRegistration.getClientId());
         return new CustomOAuth2User(user, oAuth2User.getAttributes());
     }
 }

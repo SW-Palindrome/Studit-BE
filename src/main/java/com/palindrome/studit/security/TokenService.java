@@ -10,16 +10,27 @@ public class TokenService {
 
     private static final String SECRET = "temporarilySecret";
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
-    private static final String EMAIL_CLAIM = "email";
     private static final int ACCESS_TOKEN_EXPIRE_PERIOD = 15 * 60 * 1000;  // 15분
+    private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
+    private static final int REFRESH_TOKEN_EXPIRE_PERIOD = 7 * 24 * 60 * 60 * 1000;  // 7일
+    private static final String ID_CLAIM = "id";
 
-    public static String createAccessToken(String email) {
+    public static String createAccessToken(String id) {
         Date now = new Date();
         Algorithm algorithm = Algorithm.HMAC512(SECRET);
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_PERIOD))
-                .withClaim(EMAIL_CLAIM, email)
+                .withClaim(ID_CLAIM, id)
+                .sign(algorithm);
+    }
+
+    public static String createRefreshToken() {
+        Date now = new Date();
+        Algorithm algorithm = Algorithm.HMAC512(SECRET);
+        return JWT.create()
+                .withSubject(REFRESH_TOKEN_SUBJECT)
+                .withExpiresAt(new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_PERIOD))
                 .sign(algorithm);
     }
 
