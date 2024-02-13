@@ -44,8 +44,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         if (cookie != null) {
             String targetUri = UriComponentsBuilder.fromUriString(cookie.getValue())
-                .queryParam("accessToken", accessToken)
-                .queryParam("refreshToken", refreshToken)
+                .queryParam("access_token", accessToken)
+                .queryParam("refresh_token", refreshToken)
                 .build().toUriString();
             RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
             redirectStrategy.sendRedirect(request, response, targetUri);
