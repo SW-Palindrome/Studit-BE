@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static com.palindrome.studit.security.OAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
 

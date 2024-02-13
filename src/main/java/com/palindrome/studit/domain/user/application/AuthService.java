@@ -9,13 +9,11 @@ import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.security.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
@@ -35,10 +33,6 @@ public class AuthService {
                 .providerId(providerId).build();
         oAuthInfoRepository.save(oAuthInfo);
         return user;
-    }
-
-    public String createAccessToken(User user) {
-        return TokenService.createAccessToken(user.getUserId().toString());
     }
 
     public void updateRefreshToken(User user, String refreshToken) {

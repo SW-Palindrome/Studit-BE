@@ -41,11 +41,4 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user")
     private OAuthInfo oAuthInfo;
-
-    @Builder
-    public User(String email, UserRoleType roleType) {
-        this.email = email;
-        this.roleType = roleType;
-    }
-
 }
