@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class OAuthInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long oauth_info_Id;
+    private Long oauthInfoId;
 
     @OneToOne
     @JoinColumn(name="user_id")
