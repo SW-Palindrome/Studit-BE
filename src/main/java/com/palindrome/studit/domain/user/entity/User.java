@@ -25,7 +25,6 @@ public class User extends BaseEntity {
 
     @Column(length = 15)
     @Size(min = 2, max = 15)
-    @NotBlank
     private String nickname;
 
     @NotNull
