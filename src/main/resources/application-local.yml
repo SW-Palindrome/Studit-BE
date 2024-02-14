@@ -1,0 +1,16 @@
+spring:
+  config:
+    import: classpath:config/local-config.properties
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    database: postgresql
+    hibernate:
+      ddl-auto: none
+logging:
+  level:
+    root: info
