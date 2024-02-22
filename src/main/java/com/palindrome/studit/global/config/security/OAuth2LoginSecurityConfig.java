@@ -1,4 +1,4 @@
-package com.palindrome.studit.security;
+package com.palindrome.studit.global.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

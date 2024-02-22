@@ -1,4 +1,4 @@
-package com.palindrome.studit.security;
+package com.palindrome.studit.global.config.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
