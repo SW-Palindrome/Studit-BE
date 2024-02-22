@@ -26,12 +26,13 @@ import static com.palindrome.studit.security.OAuth2AuthorizationRequestRepositor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final TokenService tokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
-        String accessToken = TokenService.createAccessToken(oAuth2User.getName());
-        String refreshToken = TokenService.createRefreshToken();
+        String accessToken = tokenService.createAccessToken(oAuth2User.getName());
+        String refreshToken = tokenService.createRefreshToken();
 
         User user = userRepository.findById(Long.parseLong(oAuth2User.getName())).orElse(null);
         if (user == null) {

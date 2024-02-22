@@ -6,7 +6,6 @@ import com.palindrome.studit.domain.user.entity.User;
 import com.palindrome.studit.domain.user.entity.UserRoleType;
 import com.palindrome.studit.domain.user.dao.OAuthInfoRepository;
 import com.palindrome.studit.domain.user.dao.UserRepository;
-import com.palindrome.studit.security.TokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
