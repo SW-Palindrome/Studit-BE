@@ -1,4 +1,4 @@
-package com.palindrome.studit.global.config.security;
+package com.palindrome.studit.global.config.security.application;
 
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;

@@ -1,4 +1,4 @@
-package com.palindrome.studit.global.config.security;
+package com.palindrome.studit.global.config.security.application;
 
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.dao.UserRepository;
@@ -19,7 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static com.palindrome.studit.global.config.security.OAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
+import static com.palindrome.studit.global.config.security.dao.OAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
 
 @Component
 @RequiredArgsConstructor
