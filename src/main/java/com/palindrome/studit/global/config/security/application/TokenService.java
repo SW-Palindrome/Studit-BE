@@ -6,23 +6,17 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import net.minidev.json.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
 public class TokenService {
     private SecretKey SECRET;
-    @Value("${jwt.access-token.subject}")
-    private String ACCESS_TOKEN_SUBJECT;
-    @Value("${jwt.refresh-token.subject}")
-    private String REFRESH_TOKEN_SUBJECT;
     @Value("${jwt.access-token.expire-period}")
     private int ACCESS_TOKEN_EXPIRE_PERIOD;
     @Value("${jwt.refresh-token.expire-period}")
@@ -34,10 +28,10 @@ public class TokenService {
         this.SECRET = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(String id) {
+    public String createAccessToken(String sub) {
         Date now = new Date();
         return Jwts.builder()
-                .subject(id)
+                .subject(sub)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_PERIOD))
                 .signWith(SECRET)
