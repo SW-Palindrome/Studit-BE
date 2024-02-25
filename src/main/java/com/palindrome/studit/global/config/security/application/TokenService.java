@@ -1,19 +1,24 @@
 package com.palindrome.studit.global.config.security.application;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.palindrome.studit.domain.user.exception.InvalidTokenException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import net.minidev.json.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
 
 @RequiredArgsConstructor
 @Service
 public class TokenService {
-    @Value("${jwt.secret}")
-    private String SECRET;
+    private SecretKey SECRET;
     @Value("${jwt.access-token.subject}")
     private String ACCESS_TOKEN_SUBJECT;
     @Value("${jwt.refresh-token.subject}")
@@ -22,32 +27,55 @@ public class TokenService {
     private int ACCESS_TOKEN_EXPIRE_PERIOD;
     @Value("${jwt.refresh-token.expire-period}")
     private int REFRESH_TOKEN_EXPIRE_PERIOD;
-    private static final String ID_CLAIM = "id";
+
+    @Autowired
+    public TokenService(@Value("${jwt.secret}") String SECRET_KEY) {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        this.SECRET = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     public String createAccessToken(String id) {
         Date now = new Date();
-        Algorithm algorithm = Algorithm.HMAC512(SECRET);
-        return JWT.create()
-                .withSubject(ACCESS_TOKEN_SUBJECT)
-                .withExpiresAt(new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_PERIOD))
-                .withClaim(ID_CLAIM, id)
-                .sign(algorithm);
+        return Jwts.builder()
+                .subject(id)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_PERIOD))
+                .signWith(SECRET)
+                .compact();
     }
 
     public String createRefreshToken() {
         Date now = new Date();
-        Algorithm algorithm = Algorithm.HMAC512(SECRET);
-        return JWT.create()
-                .withSubject(REFRESH_TOKEN_SUBJECT)
-                .withExpiresAt(new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_PERIOD))
-                .sign(algorithm);
+        return Jwts.builder()
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_PERIOD))
+                .signWith(SECRET)
+                .compact();
     }
 
-    public boolean validateToken(String token) {
+    public String parseSubject(String token) throws InvalidTokenException {
         try {
-            return JWT.require(Algorithm.HMAC512(SECRET)).build().verify(token) != null;
-        } catch (JWTVerificationException e) {
-            return false;
+            return Jwts.parser()
+                    .verifyWith(SECRET)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+        } catch (JwtException e) {
+            throw new InvalidTokenException();
+        }
+    }
+
+    public Date parseExpiration(String token) throws InvalidTokenException {
+        try {
+            return Jwts.parser()
+                    .verifyWith(SECRET)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+        } catch (JwtException e) {
+            throw new InvalidTokenException();
         }
     }
 }
