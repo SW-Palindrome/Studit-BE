@@ -3,6 +3,7 @@ package com.palindrome.studit.global.config.security.application;
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.entity.OAuthProviderType;
 import com.palindrome.studit.domain.user.entity.User;
+import com.palindrome.studit.global.config.security.dto.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
