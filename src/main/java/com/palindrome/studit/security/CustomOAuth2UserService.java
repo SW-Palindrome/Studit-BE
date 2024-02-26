@@ -18,7 +18,8 @@ import java.util.Map;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final AuthService authService;
     private static final Map<String, OAuthProviderType> oAuthProviderTypeMap = Map.of(
-        "github", OAuthProviderType.GITHUB
+        "github", OAuthProviderType.GITHUB,
+        "google", OAuthProviderType.GOOGLE
     );
 
     @Override
