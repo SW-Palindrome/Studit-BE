@@ -26,7 +26,7 @@ public class OAuthInfo extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OAuthProviderType provider;
 
-    @Size(max = 50)
+    @Size(max = 255)
     @NotBlank
     private String providerId;
 
