@@ -1,4 +1,4 @@
-package com.palindrome.studit.security;
+package com.palindrome.studit.global.config.security.dao;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.palindrome.studit.security;
+package com.palindrome.studit.global.config.security.dto;
 
 import com.palindrome.studit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
