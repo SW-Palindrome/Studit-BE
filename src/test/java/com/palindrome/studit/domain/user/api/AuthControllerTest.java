@@ -70,7 +70,7 @@ class AuthControllerTest {
         Thread.sleep(1);
 
         //When
-        ResultActions mockResult = mockMvc.perform(get("/auth/token-info/" + accessToken));
+        ResultActions mockResult = mockMvc.perform(get("/auth/token-info/{accessToken}", accessToken));
 
         //Then
         mockResult.andExpect(status().isBadRequest());
