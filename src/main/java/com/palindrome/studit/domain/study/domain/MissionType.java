@@ -1,6 +1,6 @@
 package com.palindrome.studit.domain.study.domain;
 
-public enum StudyMission {
+public enum MissionType {
     VELOG,
     GITHUB
 }

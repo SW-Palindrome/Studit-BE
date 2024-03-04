@@ -49,14 +49,8 @@ public class Study extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StudyStatus status;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private StudyMission mission;
-
-    private Integer missionCountPerWeek;
-
-    @NotNull
-    private Integer finePerMission;
+    @Embedded
+    private Mission mission;
 
     @Size(max = 50)
     private String shareCode;
