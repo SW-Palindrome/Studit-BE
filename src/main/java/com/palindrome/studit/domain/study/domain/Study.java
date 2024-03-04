@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -54,4 +56,7 @@ public class Study extends BaseEntity {
 
     @Size(max = 50)
     private String shareCode;
+
+    @OneToMany(mappedBy = "study")
+    private List<StudyEnrollment> enrollments = new ArrayList<>();
 }

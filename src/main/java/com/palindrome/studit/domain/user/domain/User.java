@@ -1,10 +1,14 @@
 package com.palindrome.studit.domain.user.domain;
 
+import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import com.palindrome.studit.global.utils.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -41,4 +45,7 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user")
     private OAuthInfo oAuthInfo;
+
+    @OneToMany(mappedBy = "user")
+    private List<StudyEnrollment> studyEnrollments = new ArrayList<>();
 }
