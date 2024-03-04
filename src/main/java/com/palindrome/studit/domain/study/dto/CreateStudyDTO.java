@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-@RequiredArgsConstructor
 public class CreateStudyDTO {
     private String name;
     private LocalDateTime startAt;
