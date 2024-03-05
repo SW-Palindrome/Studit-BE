@@ -27,6 +27,7 @@ public class OAuth2LoginSecurityConfig {
                         )
                         .successHandler(authenticationSuccessHandler)
                 );
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 }
