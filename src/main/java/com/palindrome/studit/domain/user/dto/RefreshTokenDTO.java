@@ -1,6 +1,9 @@
 package com.palindrome.studit.domain.user.dto;
 
-public class AccessTokenRefreshDTO {
-    private String userId;
-    private String accessToken;
+import lombok.*;
+
+@Getter
+public class RefreshTokenDTO {
+    private Long userId;
+    private String refreshToken;
 }
