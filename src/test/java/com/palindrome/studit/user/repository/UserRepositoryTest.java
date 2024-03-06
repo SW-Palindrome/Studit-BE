@@ -1,8 +1,8 @@
 package com.palindrome.studit.user.repository;
 
 import com.palindrome.studit.domain.user.dao.UserRepository;
-import com.palindrome.studit.domain.user.entity.User;
-import com.palindrome.studit.domain.user.entity.UserRoleType;
+import com.palindrome.studit.domain.user.domain.User;
+import com.palindrome.studit.domain.user.domain.UserRoleType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
