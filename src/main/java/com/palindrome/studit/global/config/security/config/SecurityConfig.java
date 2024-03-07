@@ -31,7 +31,9 @@ public class SecurityConfig {
                 .exceptionHandling((exception) -> exception
                         .accessDeniedHandler(accessDeniedHandler)
                         .authenticationEntryPoint(authenticationEntryPoint))
-                .authorizeHttpRequests((request) -> request.anyRequest().authenticated())
+                .authorizeHttpRequests((request) -> request
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(
