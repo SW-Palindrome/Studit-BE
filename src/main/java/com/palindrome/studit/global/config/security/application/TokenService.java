@@ -47,6 +47,18 @@ public class TokenService {
                 .compact();
     }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(SECRET)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public String parseSubject(String token) throws InvalidTokenException {
         try {
             return Jwts.parser()

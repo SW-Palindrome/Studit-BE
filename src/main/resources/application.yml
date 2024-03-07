@@ -23,3 +23,4 @@ jwt:
     expire-period: 900000  # 15분
   refresh-token:
     expire-period: 604800000  # 7일
+  type: Bearer
