@@ -61,6 +61,6 @@ public class StudyService {
 
     public Page<Study> getList(int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "studyId");
-        return studyRepository.findAll(pageable);
+        return studyRepository.findAllByIsPublicTrue(pageable);
     }
 }
