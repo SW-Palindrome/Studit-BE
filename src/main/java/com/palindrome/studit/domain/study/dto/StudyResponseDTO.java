@@ -1,9 +1,6 @@
 package com.palindrome.studit.domain.study.dto;
 
-import com.palindrome.studit.domain.study.domain.Mission;
-import com.palindrome.studit.domain.study.domain.Study;
-import com.palindrome.studit.domain.study.domain.StudyPurpose;
-import com.palindrome.studit.domain.study.domain.StudyStatus;
+import com.palindrome.studit.domain.study.domain.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +21,9 @@ public class StudyResponseDTO {
     private String description;
     private Boolean isPublic;
     private StudyStatus status;
+    private MissionType missionType;
+    private Integer missionCountPerWeek;
+    private Integer finePerMission;
 
     public static Page<StudyResponseDTO> toDTOPage(Page<Study> studies) {
         return studies.map(study -> StudyResponseDTO.builder()
@@ -36,6 +36,9 @@ public class StudyResponseDTO {
                 .description(study.getDescription())
                 .isPublic(study.getIsPublic())
                 .status(study.getStatus())
+                .missionType(study.getMission().getMissionType())
+                .missionCountPerWeek(study.getMission().getMissionCountPerWeek())
+                .finePerMission(study.getMission().getFinePerMission())
                 .build());
     }
 }
