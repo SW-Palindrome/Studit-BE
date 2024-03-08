@@ -1,9 +1,12 @@
 package com.palindrome.studit.domain.study.api;
 
 import com.palindrome.studit.domain.study.application.StudyService;
+import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
+import com.palindrome.studit.domain.study.dto.StudyResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,4 +23,11 @@ public class StudyController {
         studyService.createStudy(Long.parseLong(authentication.getName()), createStudyDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @GetMapping
+    public Page<StudyResponseDTO> listStudies(@RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Study> studies = studyService.getList(page);
+        return StudyResponseDTO.toDTOPage(studies);
+    }
+
 }

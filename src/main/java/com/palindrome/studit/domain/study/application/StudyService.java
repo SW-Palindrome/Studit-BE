@@ -8,8 +8,12 @@ import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.domain.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -53,5 +57,10 @@ public class StudyService {
         studyEnrollmentRepository.save(studyEnrollment);
 
         return study;
+    }
+
+    public Page<Study> getList(int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return studyRepository.findAll(pageable);
     }
 }
