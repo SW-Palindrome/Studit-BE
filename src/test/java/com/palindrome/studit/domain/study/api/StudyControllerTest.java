@@ -2,7 +2,6 @@ package com.palindrome.studit.domain.study.api;
 
 import com.palindrome.studit.domain.study.application.StudyService;
 import com.palindrome.studit.domain.study.domain.MissionType;
-import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.domain.StudyPurpose;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.user.application.AuthService;
@@ -11,19 +10,15 @@ import com.palindrome.studit.domain.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,7 +59,7 @@ class StudyControllerTest {
         }
 
         //When
-        ResultActions mockResult = mockMvc.perform(get("/study").param("page", "0"));
+        ResultActions mockResult = mockMvc.perform(get("/studies").param("page", "0"));
 
         //Then
         mockResult

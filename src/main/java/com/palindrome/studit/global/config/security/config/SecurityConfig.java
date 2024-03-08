@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/study").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/studies").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2

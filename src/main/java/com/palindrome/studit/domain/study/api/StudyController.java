@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/study")
+@RequestMapping("/studies")
 public class StudyController {
     private final StudyService studyService;
 
