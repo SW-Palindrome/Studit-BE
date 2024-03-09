@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StudyRepository extends JpaRepository<Study, Long> {
     Page<Study> findAllByIsPublicTrue(Pageable pageable);
+
+    Page<Study> findAllByEnrollments_User_UserId(Pageable pageable, Long userId);
 }

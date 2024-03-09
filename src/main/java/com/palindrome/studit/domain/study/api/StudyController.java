@@ -30,4 +30,9 @@ public class StudyController {
         return StudyResponseDTO.toDTOPage(studies);
     }
 
+    @GetMapping("/me")
+    public Page<StudyResponseDTO> listStudies(Authentication authentication, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Study> studies = studyService.getListByUser(page, Long.parseLong(authentication.getName()));
+        return StudyResponseDTO.toDTOPage(studies);
+    }
 }

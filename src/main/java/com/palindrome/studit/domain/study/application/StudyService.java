@@ -63,4 +63,9 @@ public class StudyService {
         Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "studyId");
         return studyRepository.findAllByIsPublicTrue(pageable);
     }
+
+    public Page<Study> getListByUser(int page, Long userId) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "studyId");
+        return studyRepository.findAllByEnrollments_User_UserId(pageable, userId);
+    }
 }
