@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class StudyResponseDTO {
+    private Long studyId;
     private String name;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
@@ -27,6 +28,7 @@ public class StudyResponseDTO {
 
     public static Page<StudyResponseDTO> toDTOPage(Page<Study> studies) {
         return studies.map(study -> StudyResponseDTO.builder()
+                .studyId(study.getStudyId())
                 .name(study.getName())
                 .startAt(study.getStartAt())
                 .endAt(study.getEndAt())
