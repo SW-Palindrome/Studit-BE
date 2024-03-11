@@ -4,14 +4,17 @@ import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
+import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.domain.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -67,5 +70,27 @@ public class StudyService {
     public Page<Study> getListByUser(int page, Long userId) {
         Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "studyId");
         return studyRepository.findAllByEnrollments_User_UserId(pageable, userId);
+    }
+
+    public StudyEnrollment enroll(Long userId, Long studyId) throws DuplicatedStudyEnrollmentException, AccessDeniedException {
+        User user = userRepository.getReferenceById(userId);
+        Study study = studyRepository.findById(studyId).orElseThrow();
+
+        if (!study.getIsPublic()) {
+            throw new AccessDeniedException("허가되지 않은 스터디 참여 요청입니다.");
+        }
+
+        StudyEnrollment studyEnrollment = StudyEnrollment.builder()
+                .user(user)
+                .study(study)
+                .role(StudyRole.MEMBER)
+                .build();
+        try {
+            studyEnrollmentRepository.save(studyEnrollment);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicatedStudyEnrollmentException("중복된 스터디 참여 요청입니다.");
+        }
+
+        return studyEnrollment;
     }
 }
