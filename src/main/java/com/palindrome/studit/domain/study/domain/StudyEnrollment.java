@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "study_id" }) })
 public class StudyEnrollment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
