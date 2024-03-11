@@ -6,11 +6,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Embeddable
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Getter
 @Builder
 public class Mission {
     @NotNull

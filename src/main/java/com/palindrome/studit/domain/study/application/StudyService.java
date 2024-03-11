@@ -8,6 +8,10 @@ import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.domain.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -53,5 +57,15 @@ public class StudyService {
         studyEnrollmentRepository.save(studyEnrollment);
 
         return study;
+    }
+
+    public Page<Study> getList(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "studyId");
+        return studyRepository.findAllByIsPublicTrue(pageable);
+    }
+
+    public Page<Study> getListByUser(int page, Long userId) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "studyId");
+        return studyRepository.findAllByEnrollments_User_UserId(pageable, userId);
     }
 }
