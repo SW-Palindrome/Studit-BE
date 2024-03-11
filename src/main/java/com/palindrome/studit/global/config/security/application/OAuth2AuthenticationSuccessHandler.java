@@ -2,7 +2,7 @@ package com.palindrome.studit.global.config.security.application;
 
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.dao.UserRepository;
-import com.palindrome.studit.domain.user.entity.User;
+import com.palindrome.studit.domain.user.domain.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

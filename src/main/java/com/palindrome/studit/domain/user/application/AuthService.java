@@ -1,21 +1,19 @@
 package com.palindrome.studit.domain.user.application;
 
 import com.palindrome.studit.domain.user.dto.RefreshTokenDTO;
-import com.palindrome.studit.domain.user.entity.OAuthInfo;
-import com.palindrome.studit.domain.user.entity.OAuthProviderType;
-import com.palindrome.studit.domain.user.entity.User;
-import com.palindrome.studit.domain.user.entity.UserRoleType;
+import com.palindrome.studit.domain.user.domain.OAuthInfo;
+import com.palindrome.studit.domain.user.domain.OAuthProviderType;
+import com.palindrome.studit.domain.user.domain.User;
+import com.palindrome.studit.domain.user.domain.UserRoleType;
 import com.palindrome.studit.domain.user.dao.OAuthInfoRepository;
 import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.exception.InvalidTokenException;
 import com.palindrome.studit.global.config.security.application.TokenService;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Service
