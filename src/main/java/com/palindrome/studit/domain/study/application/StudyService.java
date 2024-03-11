@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -71,9 +72,13 @@ public class StudyService {
         return studyRepository.findAllByEnrollments_User_UserId(pageable, userId);
     }
 
-    public StudyEnrollment enroll(Long userId, Long studyId) throws DuplicatedStudyEnrollmentException {
+    public StudyEnrollment enroll(Long userId, Long studyId) throws DuplicatedStudyEnrollmentException, AccessDeniedException {
         User user = userRepository.getReferenceById(userId);
-        Study study = studyRepository.getReferenceById(studyId);
+        Study study = studyRepository.findById(studyId).orElseThrow();
+
+        if (!study.getIsPublic()) {
+            throw new AccessDeniedException("허가되지 않은 스터디 참여 요청입니다.");
+        }
 
         StudyEnrollment studyEnrollment = StudyEnrollment.builder()
                 .user(user)
@@ -83,7 +88,7 @@ public class StudyService {
         try {
             studyEnrollmentRepository.save(studyEnrollment);
         } catch (DataIntegrityViolationException e) {
-            throw new DuplicatedStudyEnrollmentException("중복된 스터디 등록 요청입니다.");
+            throw new DuplicatedStudyEnrollmentException("중복된 스터디 참여 요청입니다.");
         }
 
         return studyEnrollment;

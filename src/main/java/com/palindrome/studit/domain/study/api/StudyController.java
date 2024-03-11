@@ -5,7 +5,6 @@ import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.dto.StudyResponseDTO;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
-import com.palindrome.studit.domain.user.exception.InvalidTokenException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
