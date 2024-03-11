@@ -73,7 +73,7 @@ class StudyControllerTest {
         mockResult
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(10)))
-                .andExpect(jsonPath("$.totalElements").value(15));
+                .andExpect(jsonPath("$.total_elements").value(15));
 
     }
 
@@ -97,7 +97,7 @@ class StudyControllerTest {
         mockResult
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(10)))
-                .andExpect(jsonPath("$.totalElements").value(20));
+                .andExpect(jsonPath("$.total_elements").value(20));
 
     }
 }
