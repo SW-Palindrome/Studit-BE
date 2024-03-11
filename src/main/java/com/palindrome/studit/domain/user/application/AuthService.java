@@ -1,11 +1,15 @@
 package com.palindrome.studit.domain.user.application;
 
+import com.palindrome.studit.domain.user.dto.RefreshTokenDTO;
 import com.palindrome.studit.domain.user.domain.OAuthInfo;
 import com.palindrome.studit.domain.user.domain.OAuthProviderType;
 import com.palindrome.studit.domain.user.domain.User;
 import com.palindrome.studit.domain.user.domain.UserRoleType;
 import com.palindrome.studit.domain.user.dao.OAuthInfoRepository;
 import com.palindrome.studit.domain.user.dao.UserRepository;
+import com.palindrome.studit.domain.user.exception.InvalidTokenException;
+import com.palindrome.studit.global.config.security.application.TokenService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,7 @@ import java.util.Optional;
 public class AuthService {
     private final UserRepository userRepository;
     private final OAuthInfoRepository oAuthInfoRepository;
+    private final TokenService tokenService;
 
     @Transactional
     public User createUser(String email, OAuthProviderType providerType, String providerId) {
@@ -38,5 +43,25 @@ public class AuthService {
         OAuthInfo oAuthInfo = oAuthInfoRepository.findByUser_UserId(user.getUserId());
         oAuthInfo.updateRefreshToken(refreshToken);
         oAuthInfoRepository.save(oAuthInfo);
+    }
+
+    public void validateRefreshToken(Long userId, String refreshToken) throws InvalidTokenException{
+        tokenService.parseExpiration(refreshToken);
+
+        OAuthInfo oAuthInfo = oAuthInfoRepository.findByUser_UserId(userId);
+        if (oAuthInfo == null) {
+            throw new EntityNotFoundException();
+        }
+        if (!oAuthInfo.getRefreshToken().equals(refreshToken)) {
+            throw new InvalidTokenException();
+        }
+    }
+
+    public String refreshAccessToken(RefreshTokenDTO request) throws InvalidTokenException {
+        Long userId = request.getUserId();
+        String refreshToken = request.getRefreshToken();
+
+        validateRefreshToken(userId, refreshToken);
+        return tokenService.createAccessToken(Long.toString(userId));
     }
 }

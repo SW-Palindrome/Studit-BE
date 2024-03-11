@@ -44,6 +44,7 @@ public class SecurityConfig {
                         )
                         .successHandler(authenticationSuccessHandler)
                 );
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 }
