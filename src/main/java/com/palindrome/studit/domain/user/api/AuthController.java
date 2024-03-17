@@ -1,14 +1,10 @@
 package com.palindrome.studit.domain.user.api;
 
 import com.palindrome.studit.domain.user.application.AuthService;
-import com.palindrome.studit.domain.user.dao.OAuthInfoRepository;
 import com.palindrome.studit.domain.user.dto.JwtDTO;
 import com.palindrome.studit.domain.user.dto.RefreshTokenDTO;
-import com.palindrome.studit.domain.user.entity.OAuthInfo;
 import com.palindrome.studit.domain.user.exception.InvalidTokenException;
 import com.palindrome.studit.global.config.security.application.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

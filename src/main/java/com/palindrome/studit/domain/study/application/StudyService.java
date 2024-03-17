@@ -9,6 +9,7 @@ import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.domain.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,7 +47,7 @@ public class StudyService {
                 .isPublic(createStudyDTO.getIsPublic())
                 .status(StudyStatus.UPCOMING)
                 .mission(mission)
-                .shareCode(UUID.randomUUID().toString())
+                .shareCode(RandomStringUtils.randomAlphanumeric(5))
                 .build();
 
         studyRepository.save(study);
