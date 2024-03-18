@@ -54,7 +54,8 @@ public class Study extends BaseEntity {
     @Embedded
     private Mission mission;
 
-    @Size(max = 50)
+    @Size(max = 5)
+    @Column(unique = true)
     private String shareCode;
 
     @OneToMany(mappedBy = "study")

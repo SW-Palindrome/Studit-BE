@@ -43,6 +43,13 @@ public class StudyController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/enroll/{shareCode}")
+    public ResponseEntity<Object> enrollStudy(Authentication authentication, @PathVariable("shareCode") String shareCode) throws DuplicatedStudyEnrollmentException {
+        studyService.enrollWithShareCode(Long.parseLong(authentication.getName()), shareCode);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
     @ExceptionHandler({ DuplicatedStudyEnrollmentException.class })
     public ResponseEntity<Object> duplicatedStudyEnrollmentException(final DuplicatedStudyEnrollmentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
