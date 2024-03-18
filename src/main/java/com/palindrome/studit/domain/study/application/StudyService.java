@@ -94,4 +94,22 @@ public class StudyService {
 
         return studyEnrollment;
     }
+
+    public StudyEnrollment enrollWithShareCode(Long userId, String shareCode) throws DuplicatedStudyEnrollmentException {
+        User user = userRepository.getReferenceById(userId);
+        Study study = studyRepository.findByShareCode(shareCode).orElseThrow();
+
+        StudyEnrollment studyEnrollment = StudyEnrollment.builder()
+                .user(user)
+                .study(study)
+                .role(StudyRole.MEMBER)
+                .build();
+        try {
+            studyEnrollmentRepository.save(studyEnrollment);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicatedStudyEnrollmentException("중복된 스터디 참여 요청입니다.");
+        }
+
+        return studyEnrollment;
+    }
 }

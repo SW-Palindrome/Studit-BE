@@ -11,6 +11,7 @@ import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentExc
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.domain.OAuthProviderType;
 import com.palindrome.studit.domain.user.domain.User;
+import com.palindrome.studit.global.config.security.application.TokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({StudyService.class, AuthService.class})
+@Import({StudyService.class, AuthService.class, TokenService.class})
 class StudyServiceTest {
     @Autowired
     private StudyService studyService;
@@ -189,5 +190,33 @@ class StudyServiceTest {
 
         //When, Then
         assertThrows(DuplicatedStudyEnrollmentException.class, () -> studyService.enroll(member.getUserId(), study.getStudyId()));
+    }
+
+    @Test
+    @DisplayName("공유 코드로 스터디 참여 테스트")
+    void enrollWithShareCodeTest() {
+        //Given
+        User studyLeader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(false)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(studyLeader.getUserId(), createStudyDTO);
+
+        //When
+        StudyEnrollment studyEnrollment = studyService.enrollWithShareCode(member.getUserId(), study.getShareCode());
+
+        //Then
+        assertThat(studyEnrollment).isNotNull();
+        assertThat(studyEnrollmentRepository.count()).isEqualTo(2);
     }
 }
