@@ -11,6 +11,7 @@ import com.palindrome.studit.domain.user.domain.User;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +21,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Service
@@ -50,7 +50,7 @@ public class StudyService {
                 .isPublic(createStudyDTO.getIsPublic())
                 .status(StudyStatus.UPCOMING)
                 .mission(mission)
-                .shareCode(UUID.randomUUID().toString())
+                .shareCode(RandomStringUtils.randomAlphanumeric(5))
                 .build();
 
         studyRepository.save(study);
@@ -83,6 +83,24 @@ public class StudyService {
         if (!study.getIsPublic()) {
             throw new AccessDeniedException("허가되지 않은 스터디 참여 요청입니다.");
         }
+
+        StudyEnrollment studyEnrollment = StudyEnrollment.builder()
+                .user(user)
+                .study(study)
+                .role(StudyRole.MEMBER)
+                .build();
+        try {
+            studyEnrollmentRepository.save(studyEnrollment);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicatedStudyEnrollmentException("중복된 스터디 참여 요청입니다.");
+        }
+
+        return studyEnrollment;
+    }
+
+    public StudyEnrollment enrollWithShareCode(Long userId, String shareCode) throws DuplicatedStudyEnrollmentException {
+        User user = userRepository.getReferenceById(userId);
+        Study study = studyRepository.findByShareCode(shareCode).orElseThrow();
 
         StudyEnrollment studyEnrollment = StudyEnrollment.builder()
                 .user(user)

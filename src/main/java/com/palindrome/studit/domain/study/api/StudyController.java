@@ -44,6 +44,13 @@ public class StudyController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/enroll/{shareCode}")
+    public ResponseEntity<Object> enrollStudy(Authentication authentication, @PathVariable("shareCode") String shareCode) throws DuplicatedStudyEnrollmentException {
+        studyService.enrollWithShareCode(Long.parseLong(authentication.getName()), shareCode);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
     @PatchMapping("/{studyId}/missions/url")
     public ResponseEntity<Object> updateMissionurl(Authentication authentication, @PathVariable("studyId") Long studyId, @Valid @RequestBody MissionUrlRequestDTO missionUrlRequestDTO) {
         studyService.updateMissionUrl(Long.parseLong(authentication.getName()), studyId, missionUrlRequestDTO);
