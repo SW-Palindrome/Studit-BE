@@ -34,44 +34,43 @@ public class GithubMissionService {
         List<StudyEnrollment> studyEnrollments = studyEnrollmentRepository.findAllByStudy_Mission_MissionTypeAndStudy_Status(MissionType.GITHUB, StudyStatus.IN_PROGRESS);
 
         for (StudyEnrollment studyEnrollment : studyEnrollments) {
-            String missionUrl = studyEnrollment.getMissionUrl();
+            String url = getGithubApiUrl(studyEnrollment.getMissionUrl());
 
-            if (missionUrl == null || missionUrl.isBlank()) {
-                continue;
-            }
+            if (url == null) continue;
 
-            String[] parts = missionUrl.split("/");
-
-            String user = parts[3];
-            String repositoryName = parts[4];
-
-            String url = "https://api.github.com/repos/" + user + "/" + repositoryName + "/pulls?state=all";
             JsonNode result = restTemplate.getForObject(url, JsonNode.class);
 
-            if (result == null) {
-                continue;
-            }
+            if (result == null) continue;
 
             for (JsonNode repoInfo : result) {
-                if (!repoInfo.get("state").asText().equals("closed")) {
-                    continue;
-                }
+                if (!repoInfo.get("state").asText().equals("closed")) continue;
 
-                String completedMissionUrl = repoInfo.get("html_url").asText();
                 LocalDateTime completedAt = LocalDateTime.parse(repoInfo.get("merged_at").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-
-                if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) {
-                    continue;
-                }
-
-                StudyLog studyLog = StudyLog.builder()
-                        .studyEnrollment(studyEnrollment)
-                        .completedMissionUrl(completedMissionUrl)
-                        .completedAt(completedAt)
-                        .build();
-
-                studyLogRepository.findByCompletedMissionUrl(completedMissionUrl).orElseGet(() -> studyLogRepository.save(studyLog));
+                getOrCreateStudyLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
             }
         }
+    }
+
+    private String getGithubApiUrl(String missionUrl) {
+        if (missionUrl == null || missionUrl.isBlank()) return null;
+
+        String[] parts = missionUrl.split("/");
+
+        String user = parts[3];
+        String repositoryName = parts[4];
+
+        return "https://api.github.com/repos/" + user + "/" + repositoryName + "/pulls?state=all";
+    }
+
+    private StudyLog getOrCreateStudyLog(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
+        if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) return null;
+
+        StudyLog studyLog = StudyLog.builder()
+                .studyEnrollment(studyEnrollment)
+                .completedMissionUrl(completedMissionUrl)
+                .completedAt(completedAt)
+                .build();
+
+        return studyLogRepository.findByCompletedMissionUrl(completedMissionUrl).orElseGet(() -> studyLogRepository.save(studyLog));
     }
 }
