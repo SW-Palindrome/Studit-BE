@@ -1,4 +1,4 @@
-package com.palindrome.studit.domain.study.application;
+package com.palindrome.studit.domain.mission.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
