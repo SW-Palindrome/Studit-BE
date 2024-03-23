@@ -27,7 +27,7 @@ public class GithubMissionService {
     private final StudyLogRepository studyLogRepository;
     private final RestTemplate restTemplate;
 
-    @Scheduled(cron = "0 */10 * ? * *")
+    @Scheduled(cron = "${cron.github.fetch-interval}")
     public void savePullRequest() {
         List<StudyEnrollment> studyEnrollments = studyEnrollmentRepository.findAllByStudy_Mission_MissionTypeAndStudy_Status(MissionType.GITHUB, StudyStatus.IN_PROGRESS);
 

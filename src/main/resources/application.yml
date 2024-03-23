@@ -27,3 +27,7 @@ jwt:
   refresh-token:
     expire-period: 604800000  # 7일
   type: Bearer
+
+cron:
+  github:
+    fetch-interval: 0 */10 * ? * *
