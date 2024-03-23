@@ -25,11 +25,11 @@ import java.util.List;
 public class GithubMissionService {
     private final StudyEnrollmentRepository studyEnrollmentRepository;
     private final StudyLogRepository studyLogRepository;
+    private final RestTemplate restTemplate;
 
     @Scheduled(cron = "0 */10 * ? * *")
     public void savePullRequest() {
         List<StudyEnrollment> studyEnrollments = studyEnrollmentRepository.findAllByStudy_Mission_MissionTypeAndStudy_Status(MissionType.GITHUB, StudyStatus.IN_PROGRESS);
-        RestTemplate restTemplate = new RestTemplate();
 
         for (StudyEnrollment studyEnrollment : studyEnrollments) {
             String missionUrl = studyEnrollment.getMissionUrl();
@@ -51,6 +51,10 @@ public class GithubMissionService {
             }
 
             for (JsonNode repoInfo : result) {
+                if (!repoInfo.get("state").asText().equals("closed")) {
+                    continue;
+                }
+
                 String completedMissionUrl = repoInfo.get("html_url").asText();
                 LocalDateTime completedAt = LocalDateTime.parse(repoInfo.get("merged_at").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
 
@@ -62,9 +66,7 @@ public class GithubMissionService {
 
                 try {
                     studyLogRepository.save(studyLog);
-                } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-                    log.warn(completedMissionUrl + "is ignored!");
-                }
+                } catch (ConstraintViolationException | DataIntegrityViolationException ignore) {}
             }
         }
     }
