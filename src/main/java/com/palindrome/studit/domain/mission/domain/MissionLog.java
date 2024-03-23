@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Builder
-public class StudyLog extends BaseEntity {
+public class MissionLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long studyLogId;
+    private Long missionLogId;
 
     @ManyToOne
     @JoinColumn(name = "mission_state_id")

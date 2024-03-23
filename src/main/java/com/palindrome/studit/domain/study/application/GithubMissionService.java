@@ -2,10 +2,10 @@ package com.palindrome.studit.domain.study.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
-import com.palindrome.studit.domain.study.dao.StudyLogRepository;
+import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
 import com.palindrome.studit.domain.study.domain.MissionType;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
-import com.palindrome.studit.domain.mission.domain.StudyLog;
+import com.palindrome.studit.domain.mission.domain.MissionLog;
 import com.palindrome.studit.domain.study.domain.StudyStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class GithubMissionService {
     private final StudyEnrollmentRepository studyEnrollmentRepository;
-    private final StudyLogRepository studyLogRepository;
+    private final MissionLogRepository missionLogRepository;
     private final RestTemplate restTemplate;
 
     @Value("${cron.github.fetch-days}")
@@ -46,7 +46,7 @@ public class GithubMissionService {
                 if (!repoInfo.get("state").asText().equals("closed")) continue;
 
                 LocalDateTime completedAt = LocalDateTime.parse(repoInfo.get("merged_at").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-                getOrCreateStudyLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
+                getOrCreateMissionLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
             }
         }
     }
@@ -62,15 +62,15 @@ public class GithubMissionService {
         return "https://api.github.com/repos/" + user + "/" + repositoryName + "/pulls?state=all";
     }
 
-    private StudyLog getOrCreateStudyLog(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
+    private MissionLog getOrCreateMissionLog(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
         if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) return null;
 
-        StudyLog studyLog = StudyLog.builder()
-                .studyEnrollment(studyEnrollment)
+        MissionLog missionLog = MissionLog.builder()
+//                .studyEnrollment(studyEnrollment)
                 .completedMissionUrl(completedMissionUrl)
                 .completedAt(completedAt)
                 .build();
 
-        return studyLogRepository.findByCompletedMissionUrl(completedMissionUrl).orElseGet(() -> studyLogRepository.save(studyLog));
+        return missionLogRepository.findByCompletedMissionUrl(completedMissionUrl).orElseGet(() -> missionLogRepository.save(missionLog));
     }
 }
