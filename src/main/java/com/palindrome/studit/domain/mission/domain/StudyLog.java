@@ -1,9 +1,7 @@
 package com.palindrome.studit.domain.mission.domain;
 
-import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import com.palindrome.studit.global.utils.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,8 +20,8 @@ public class StudyLog extends BaseEntity {
     private Long studyLogId;
 
     @ManyToOne
-    @JoinColumn(name = "study_enrollment_id")
-    private StudyEnrollment studyEnrollment;
+    @JoinColumn(name = "mission_state_id")
+    private MissionState missionState;
 
     @Column(unique = true)
     private String completedMissionUrl;
