@@ -52,7 +52,7 @@ public class Study extends BaseEntity {
     private StudyStatus status;
 
     @Embedded
-    private StudyMissionInfo mission;
+    private MissionInfo mission;
 
     @Size(max = 5)
     @Column(unique = true)

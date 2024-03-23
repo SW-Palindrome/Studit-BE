@@ -29,7 +29,7 @@ public class StudyService {
     public Study createStudy(Long userId, CreateStudyDTO createStudyDTO) {
         User user = userRepository.getReferenceById(userId);
 
-        StudyMissionInfo mission = StudyMissionInfo.builder()
+        MissionInfo mission = MissionInfo.builder()
                 .missionType(createStudyDTO.getMissionType())
                 .missionCountPerWeek(createStudyDTO.getMissionCountPerWeek())
                 .finePerMission(createStudyDTO.getFinePerMission())
