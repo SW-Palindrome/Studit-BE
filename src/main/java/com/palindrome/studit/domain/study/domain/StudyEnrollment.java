@@ -29,4 +29,6 @@ public class StudyEnrollment extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private StudyRole role;
+
+    private String missionUrl;
 }
