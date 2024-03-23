@@ -18,8 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class StudyService {
@@ -31,7 +29,7 @@ public class StudyService {
     public Study createStudy(Long userId, CreateStudyDTO createStudyDTO) {
         User user = userRepository.getReferenceById(userId);
 
-        Mission mission = Mission.builder()
+        StudyMissionInfo mission = StudyMissionInfo.builder()
                 .missionType(createStudyDTO.getMissionType())
                 .missionCountPerWeek(createStudyDTO.getMissionCountPerWeek())
                 .finePerMission(createStudyDTO.getFinePerMission())

@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Builder
-public class Mission {
+public class StudyMissionInfo {
     @NotNull
     @Enumerated(EnumType.STRING)
     private MissionType missionType;
