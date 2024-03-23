@@ -9,8 +9,7 @@ import com.palindrome.studit.domain.study.domain.StudyLog;
 import com.palindrome.studit.domain.study.domain.StudyStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +25,9 @@ public class GithubMissionService {
     private final StudyEnrollmentRepository studyEnrollmentRepository;
     private final StudyLogRepository studyLogRepository;
     private final RestTemplate restTemplate;
+
+    @Value("${cron.github.fetch-days}")
+    private int FETCH_DAYS;
 
     @Scheduled(cron = "${cron.github.fetch-interval}")
     public void savePullRequest() {
@@ -58,15 +60,17 @@ public class GithubMissionService {
                 String completedMissionUrl = repoInfo.get("html_url").asText();
                 LocalDateTime completedAt = LocalDateTime.parse(repoInfo.get("merged_at").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
 
+                if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) {
+                    continue;
+                }
+
                 StudyLog studyLog = StudyLog.builder()
                         .studyEnrollment(studyEnrollment)
                         .completedMissionUrl(completedMissionUrl)
                         .completedAt(completedAt)
                         .build();
 
-                try {
-                    studyLogRepository.save(studyLog);
-                } catch (ConstraintViolationException | DataIntegrityViolationException ignore) {}
+                studyLogRepository.findByCompletedMissionUrl(completedMissionUrl).orElseGet(() -> studyLogRepository.save(studyLog));
             }
         }
     }
