@@ -32,5 +32,5 @@ public class MissionState extends BaseEntity {
     private LocalDateTime endAt;
 
     @NotNull
-    private MissionStatus status;
+    private Integer uncompletedMissionCounts;
 }
