@@ -1,5 +1,6 @@
-package com.palindrome.studit.domain.study.domain;
+package com.palindrome.studit.domain.mission.domain;
 
+import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import com.palindrome.studit.global.utils.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

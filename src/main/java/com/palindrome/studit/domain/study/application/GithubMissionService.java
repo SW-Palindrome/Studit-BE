@@ -5,7 +5,7 @@ import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyLogRepository;
 import com.palindrome.studit.domain.study.domain.MissionType;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
-import com.palindrome.studit.domain.study.domain.StudyLog;
+import com.palindrome.studit.domain.mission.domain.StudyLog;
 import com.palindrome.studit.domain.study.domain.StudyStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.palindrome.studit.domain.study.dao;
 
-import com.palindrome.studit.domain.study.domain.StudyLog;
+import com.palindrome.studit.domain.mission.domain.StudyLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
