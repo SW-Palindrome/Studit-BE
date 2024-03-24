@@ -1,6 +1,8 @@
 package com.palindrome.studit.domain.mission.application;
 
+import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
 import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
+import com.palindrome.studit.domain.mission.domain.MissionLog;
 import com.palindrome.studit.domain.mission.domain.MissionState;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MissionService {
     private final MissionStateRepository missionStateRepository;
+    private final MissionLogRepository missionLogRepository;
     private static final int MISSION_DURATION_DATE = 7;
 
     @Transactional
@@ -34,5 +37,20 @@ public class MissionService {
         }
 
         return missionStateRepository.saveAll(missionStates);
+    }
+
+    @Transactional
+    public MissionLog submitMission(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
+        MissionState missionState = missionStateRepository.findByStudyEnrollment_StudyEnrollmentIdAndStartAtBeforeAndEndAtAfter(studyEnrollment.getStudyEnrollmentId(), completedAt, completedAt).orElseThrow();
+
+        missionState.submitMission();
+
+        MissionLog missionLog = MissionLog.builder()
+                .missionState(missionState)
+                .completedMissionUrl(completedMissionUrl)
+                .completedAt(completedAt)
+                .build();
+
+        return missionLogRepository.save(missionLog);
     }
 }
