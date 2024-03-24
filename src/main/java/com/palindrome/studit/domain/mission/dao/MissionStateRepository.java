@@ -4,6 +4,9 @@ import com.palindrome.studit.domain.mission.domain.MissionState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MissionStateRepository extends JpaRepository<MissionState, Long> {
+    List<MissionState> findAllByStudyEnrollment_User_UserId(Long userId);
 }

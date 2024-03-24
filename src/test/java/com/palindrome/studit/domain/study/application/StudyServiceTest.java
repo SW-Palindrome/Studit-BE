@@ -1,12 +1,10 @@
 package com.palindrome.studit.domain.study.application;
 
 import com.palindrome.studit.domain.mission.application.MissionStateService;
+import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
-import com.palindrome.studit.domain.study.domain.MissionType;
-import com.palindrome.studit.domain.study.domain.Study;
-import com.palindrome.studit.domain.study.domain.StudyEnrollment;
-import com.palindrome.studit.domain.study.domain.StudyPurpose;
+import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.application.AuthService;
@@ -43,6 +41,9 @@ class StudyServiceTest {
     @Autowired
     private StudyEnrollmentRepository studyEnrollmentRepository;
 
+    @Autowired
+    private MissionStateRepository missionStateRepository;
+
     @Test
     @DisplayName("스터디 그룹 생성 테스트")
     void createStudyTest() {
@@ -68,6 +69,61 @@ class StudyServiceTest {
         assertThat(study).isNotNull();
         assertThat(studyRepository.count()).isEqualTo(1);
         assertThat(studyEnrollmentRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("스터디 시작 테스트")
+    void startTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(28))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        studyService.enroll(member.getUserId(), study.getStudyId());
+
+        //When
+        studyService.start(leader.getUserId(), study.getStudyId());
+
+        //Then
+        assertThat(study.getStatus()).isEqualTo(StudyStatus.IN_PROGRESS);
+        assertThat(missionStateRepository.findAllByStudyEnrollment_User_UserId(leader.getUserId())).isNotEmpty();
+        assertThat(missionStateRepository.findAllByStudyEnrollment_User_UserId(member.getUserId())).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("허용되지 않은 멤버의 스터디 시작 테스트")
+    void startByMemberFailedTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(28))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        studyService.enroll(member.getUserId(), study.getStudyId());
+
+        //When, Then
+        assertThrows(AccessDeniedException.class, () -> studyService.start(member.getUserId(), study.getStudyId()));
     }
 
     @Test

@@ -65,7 +65,7 @@ public class StudyService {
     }
 
     @Transactional
-    public void start(Long userId, Long studyId) throws AlreadyStartedStudyException {
+    public void start(Long userId, Long studyId) throws AlreadyStartedStudyException, AccessDeniedException {
         StudyEnrollment leaderStudyEnrollment = studyEnrollmentRepository.findByUser_UserIdAndStudy_StudyId(userId, studyId).orElseThrow();
 
         if (!leaderStudyEnrollment.getRole().equals(StudyRole.LEADER)) throw new AccessDeniedException("허가되지 않은 스터디입니다.");
