@@ -4,6 +4,7 @@ import com.palindrome.studit.domain.study.application.StudyService;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.dto.StudyResponseDTO;
+import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,11 @@ public class StudyController {
 
     @ExceptionHandler({ DuplicatedStudyEnrollmentException.class })
     public ResponseEntity<Object> duplicatedStudyEnrollmentException(final DuplicatedStudyEnrollmentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler({ AlreadyStartedStudyException.class })
+    public ResponseEntity<Object> alreadyStartedStudyException(final AlreadyStartedStudyException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }

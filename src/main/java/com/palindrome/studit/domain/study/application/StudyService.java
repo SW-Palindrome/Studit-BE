@@ -5,6 +5,7 @@ import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
+import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.domain.User;
@@ -64,7 +65,7 @@ public class StudyService {
     }
 
     @Transactional
-    public void start(Long userId, Long studyId) {
+    public void start(Long userId, Long studyId) throws AlreadyStartedStudyException {
         StudyEnrollment leaderStudyEnrollment = studyEnrollmentRepository.findByUser_UserIdAndStudy_StudyId(userId, studyId).orElseThrow();
 
         if (!leaderStudyEnrollment.getRole().equals(StudyRole.LEADER)) throw new AccessDeniedException("허가되지 않은 스터디입니다.");
