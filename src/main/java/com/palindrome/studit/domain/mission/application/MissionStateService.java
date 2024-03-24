@@ -24,7 +24,7 @@ public class MissionStateService {
 
         List<MissionState> missionStates = new ArrayList<>();
 
-        for (LocalDateTime dateTime = study.getStartAt(); dateTime.isBefore(study.getEndAt()); dateTime = dateTime.plusDays(MISSION_DURATION_DATE)) {
+        for (LocalDateTime dateTime = study.getStartAt(); dateTime.isBefore(study.getEndAt().minusNanos(1)); dateTime = dateTime.plusDays(MISSION_DURATION_DATE)) {
             missionStates.add(MissionState.builder()
                     .studyEnrollment(studyEnrollment)
                     .startAt(dateTime)

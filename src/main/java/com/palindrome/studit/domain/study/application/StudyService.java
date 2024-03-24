@@ -64,10 +64,14 @@ public class StudyService {
     }
 
     @Transactional
-    public void startStudy(Long studyId) {
-        Study study = studyRepository.findById(studyId).orElseThrow();
+    public void start(Long userId, Long studyId) {
+        StudyEnrollment leaderStudyEnrollment = studyEnrollmentRepository.findByUser_UserIdAndStudy_StudyId(userId, studyId).orElseThrow();
 
-        study.startStudy();
+        if (!leaderStudyEnrollment.getRole().equals(StudyRole.LEADER)) throw new AccessDeniedException("허가되지 않은 스터디입니다.");
+
+        Study study = leaderStudyEnrollment.getStudy();
+
+        study.start();
 
         for (StudyEnrollment studyEnrollment : studyEnrollmentRepository.findAllByStudy_StudyId(studyId)) {
             missionStateService.createMissionStates(studyEnrollment);
