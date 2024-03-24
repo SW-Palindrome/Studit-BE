@@ -1,5 +1,6 @@
 package com.palindrome.studit.domain.study.application;
 
+import com.palindrome.studit.domain.mission.application.MissionStateService;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.MissionType;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({StudyService.class, AuthService.class, TokenService.class})
+@Import({StudyService.class, AuthService.class, TokenService.class, MissionStateService.class})
 class StudyServiceTest {
     @Autowired
     private StudyService studyService;
