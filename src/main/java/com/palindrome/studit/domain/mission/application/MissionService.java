@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MissionStateService {
+public class MissionService {
     private final MissionStateRepository missionStateRepository;
     private static final int MISSION_DURATION_DATE = 7;
 

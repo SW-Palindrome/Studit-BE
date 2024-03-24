@@ -24,10 +24,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({StudyService.class, AuthService.class, TokenService.class, MissionStateService.class})
+@Import({StudyService.class, AuthService.class, TokenService.class, MissionService.class})
 class MissionStateServiceTest {
     @Autowired
-    private MissionStateService missionStateService;
+    private MissionService missionStateService;
 
     @Autowired
     private MissionStateRepository missionStateRepository;
