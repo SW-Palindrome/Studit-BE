@@ -60,4 +60,6 @@ public class Study extends BaseEntity {
 
     @OneToMany(mappedBy = "study")
     private List<StudyEnrollment> enrollments = new ArrayList<>();
+
+    public void startStudy() { this.status = StudyStatus.IN_PROGRESS; }
 }

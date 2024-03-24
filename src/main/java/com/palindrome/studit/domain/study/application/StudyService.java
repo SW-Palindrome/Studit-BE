@@ -1,5 +1,6 @@
 package com.palindrome.studit.domain.study.application;
 
+import com.palindrome.studit.domain.mission.application.MissionStateService;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
@@ -24,6 +25,7 @@ public class StudyService {
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
     private final StudyEnrollmentRepository studyEnrollmentRepository;
+    private final MissionStateService missionStateService;
 
     @Transactional
     public Study createStudy(Long userId, CreateStudyDTO createStudyDTO) {
@@ -59,6 +61,17 @@ public class StudyService {
         studyEnrollmentRepository.save(studyEnrollment);
 
         return study;
+    }
+
+    @Transactional
+    public void startStudy(Long studyId) {
+        Study study = studyRepository.findById(studyId).orElseThrow();
+
+        study.startStudy();
+
+        for (StudyEnrollment studyEnrollment : studyEnrollmentRepository.findAllByStudy_StudyId(studyId)) {
+            missionStateService.createMissionStates(studyEnrollment);
+        }
     }
 
     public Page<Study> getList(int page) {
