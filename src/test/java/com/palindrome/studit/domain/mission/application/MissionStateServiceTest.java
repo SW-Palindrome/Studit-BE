@@ -65,5 +65,4 @@ class MissionStateServiceTest {
         //Then
         assertThat(missionStateRepository.count()).isEqualTo(4);
     }
-
 }

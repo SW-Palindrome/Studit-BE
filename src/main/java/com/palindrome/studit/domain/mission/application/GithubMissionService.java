@@ -46,7 +46,7 @@ public class GithubMissionService {
                 if (!repoInfo.get("state").asText().equals("closed")) continue;
 
                 LocalDateTime completedAt = LocalDateTime.parse(repoInfo.get("merged_at").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-                getOrCreateMissionLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
+//                getOrCreateMissionLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
             }
         }
     }
