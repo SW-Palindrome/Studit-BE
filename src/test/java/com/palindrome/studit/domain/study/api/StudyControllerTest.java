@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -100,4 +102,46 @@ class StudyControllerTest {
                 .andExpect(jsonPath("$.total_elements").value(20));
 
     }
+
+    @Test
+    @DisplayName("미션 수행할 주소 수정 성공 테스트")
+    void updateMissionUrlTest() throws Exception {
+        //Given
+        User user = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId");
+        createStudies(user, true, 1);
+        String accessToken = tokenService.createAccessToken(user.getUserId().toString());
+
+        //When
+        String requestJson = "{\"mission_url\": \"https://github.com/palindrome\"}";
+        ResultActions mockResult = mockMvc.perform(patch("/studies/1/missions/url")
+                .header("Authorization", "Bearer " + accessToken)
+                .content(requestJson)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //Then
+        mockResult.andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("미션 수행할 주소 수정 실패 테스트")
+    void updateMissionUrlFailureTest() throws Exception {
+        //Given
+        User user = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId");
+        createStudies(user, true, 1);
+        String accessToken = tokenService.createAccessToken(user.getUserId().toString());
+
+        //When
+        String requestJson = "{\"mission_url\": \"https://velog.io/@palindrome\"}";
+        ResultActions mockResult = mockMvc.perform(patch("/studies/1/missions/url")
+                .header("Authorization", "Bearer " + accessToken)
+                .content(requestJson)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //Then
+        mockResult
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("잘못된 주소입니다."));
+    }
+
+
 }
