@@ -1,6 +1,8 @@
 package com.palindrome.studit.domain.mission.application;
 
+import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
 import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
+import com.palindrome.studit.domain.mission.domain.MissionState;
 import com.palindrome.studit.domain.study.application.StudyService;
 import com.palindrome.studit.domain.study.domain.MissionType;
 import com.palindrome.studit.domain.study.domain.Study;
@@ -19,6 +21,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,10 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({StudyService.class, AuthService.class, TokenService.class, MissionService.class})
 class MissionStateServiceTest {
     @Autowired
-    private MissionService missionStateService;
+    private MissionService missionService;
 
     @Autowired
     private MissionStateRepository missionStateRepository;
+
+    @Autowired
+    private MissionLogRepository missionLogRepository;
 
     @Autowired
     private StudyService studyService;
@@ -60,9 +66,40 @@ class MissionStateServiceTest {
         StudyEnrollment studyEnrollment = studyService.enroll(member.getUserId(), study.getStudyId());
 
         //When
-        missionStateService.createMissionStates(studyEnrollment);
+        missionService.createMissionStates(studyEnrollment);
 
         //Then
         assertThat(missionStateRepository.count()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("미션 제출 테스트")
+    void submitMissionTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        StudyEnrollment studyEnrollment = studyService.enroll(member.getUserId(), study.getStudyId());
+        List<MissionState> missionStates = missionService.createMissionStates(studyEnrollment);
+        MissionState missionState = missionStates.get(0);
+
+        //When
+        missionService.submitMission(studyEnrollment, "https://completed-mission.com", LocalDateTime.now());
+
+        //Then
+        assertThat(missionLogRepository.count()).isEqualTo(1);
+        assertThat(missionState.getUncompletedMissionCounts()).isEqualTo(2);
     }
 }
