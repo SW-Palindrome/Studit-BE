@@ -22,8 +22,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -101,5 +103,31 @@ class MissionStateServiceTest {
         //Then
         assertThat(missionLogRepository.count()).isEqualTo(1);
         assertThat(missionState.getUncompletedMissionCounts()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("잘못된 기간의 미션 제출 테스트")
+    void submitWrongPeriodMissionTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        StudyEnrollment studyEnrollment = studyService.enroll(member.getUserId(), study.getStudyId());
+        List<MissionState> missionStates = missionService.createMissionStates(studyEnrollment);
+
+        //When, Then
+        assertThrows(NoSuchElementException.class, () -> missionService.submitMission(studyEnrollment, "https://completed-mission.com", LocalDateTime.now().plusDays(10)));
     }
 }
