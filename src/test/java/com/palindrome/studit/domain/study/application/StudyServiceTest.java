@@ -293,4 +293,66 @@ class StudyServiceTest {
             studyService.updateMissionUrl(user.getUserId(), study.getStudyId(), missionUrlRequestDTO);
         });
     }
+
+    @Test
+    @DisplayName("github 미션 주소 검증 테스트")
+    void validateGithubMissionUrlTest() {
+        //Given
+        MissionType missionTypeGithub = MissionType.GITHUB;
+        String githubTestUrl = "https://github.com/username";
+
+        //When
+        String githubMissionUrl = studyService.validateMissionUrl(missionTypeGithub, githubTestUrl);
+
+        //Then
+        assertEquals(githubTestUrl, githubMissionUrl);
+    }
+
+    @Test
+    @DisplayName("velog 미션 주소 검증 테스트")
+    void validateVelogMissionUrlTest() {
+        //Given
+        MissionType missionTypeVelog = MissionType.VELOG;
+        String velogTestUrl = "https://velog.io/@username";
+
+        //When
+        String velogMissionUrl = studyService.validateMissionUrl(missionTypeVelog, velogTestUrl);
+
+        //Then
+        assertEquals(velogTestUrl, velogMissionUrl);
+    }
+
+    @Test
+    @DisplayName("velog 미션 주소 검증 실패 테스트")
+    void validateVelogMissionUrlFailureTest() {
+        //Given
+        MissionType missionTypeVelog = MissionType.VELOG;
+        String velogTestUrl = "https://velog.io/username";
+        String githubTestUrl = "https://github.com/username";
+
+        //When, Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeVelog, githubTestUrl);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeVelog, velogTestUrl);
+        });
+    }
+
+    @Test
+    @DisplayName("github 미션 주소 검증 실패 테스트")
+    void validateGithubMissionUrlFailureTest() {
+        // Given
+        MissionType missionTypeGithub = MissionType.GITHUB;
+        String githubTestUrl = "https://github.com/@username";
+        String velogTestUrl = "https://velog.io/@username";
+
+        // When, Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeGithub, velogTestUrl);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeGithub, githubTestUrl);
+        });
+    }
 }
