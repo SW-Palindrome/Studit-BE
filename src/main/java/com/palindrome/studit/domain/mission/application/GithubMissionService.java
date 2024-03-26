@@ -24,6 +24,7 @@ import java.util.List;
 public class GithubMissionService {
     private final StudyEnrollmentRepository studyEnrollmentRepository;
     private final MissionLogRepository missionLogRepository;
+    private final MissionService missionService;
     private final RestTemplate restTemplate;
 
     @Value("${cron.github.fetch-days}")
@@ -46,7 +47,10 @@ public class GithubMissionService {
                 if (!repoInfo.get("state").asText().equals("closed")) continue;
 
                 LocalDateTime completedAt = LocalDateTime.parse(repoInfo.get("merged_at").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-//                getOrCreateMissionLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
+                if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) continue;
+                if (studyEnrollment.getStudy().getStartAt().isAfter(completedAt) || studyEnrollment.getStudy().getEndAt().isBefore(completedAt)) continue;
+
+                getOrCreateMissionLog(studyEnrollment, repoInfo.get("html_url").asText(), completedAt);
             }
         }
     }
@@ -63,14 +67,7 @@ public class GithubMissionService {
     }
 
     private MissionLog getOrCreateMissionLog(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
-        if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) return null;
-
-        MissionLog missionLog = MissionLog.builder()
-//                .studyEnrollment(studyEnrollment)
-                .completedMissionUrl(completedMissionUrl)
-                .completedAt(completedAt)
-                .build();
-
-        return missionLogRepository.findByCompletedMissionUrl(completedMissionUrl).orElseGet(() -> missionLogRepository.save(missionLog));
+        return missionLogRepository.findByCompletedMissionUrl(completedMissionUrl)
+                .orElseGet(() -> missionService.submitMission(studyEnrollment, completedMissionUrl, completedAt));
     }
 }

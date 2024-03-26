@@ -1,6 +1,6 @@
 package com.palindrome.studit.domain.study.application;
 
-import com.palindrome.studit.domain.mission.application.MissionStateService;
+import com.palindrome.studit.domain.mission.application.MissionService;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
@@ -26,7 +26,7 @@ public class StudyService {
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
     private final StudyEnrollmentRepository studyEnrollmentRepository;
-    private final MissionStateService missionStateService;
+    private final MissionService missionStateService;
 
     @Transactional
     public Study createStudy(Long userId, CreateStudyDTO createStudyDTO) {

@@ -33,4 +33,8 @@ public class MissionState extends BaseEntity {
 
     @NotNull
     private Integer uncompletedMissionCounts;
+
+    public void submitMission() {
+        this.uncompletedMissionCounts = Math.max(this.uncompletedMissionCounts - 1, 0);
+    }
 }
