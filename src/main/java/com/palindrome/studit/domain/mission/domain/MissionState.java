@@ -1,5 +1,6 @@
-package com.palindrome.studit.domain.study.domain;
+package com.palindrome.studit.domain.mission.domain;
 
+import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import com.palindrome.studit.global.utils.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -15,17 +16,25 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Builder
-public class StudyLog extends BaseEntity {
+public class MissionState extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long studyLogId;
+    private Long missionStateId;
 
     @ManyToOne
     @JoinColumn(name = "study_enrollment_id")
     private StudyEnrollment studyEnrollment;
 
-    @Column(unique = true)
-    private String completedMissionUrl;
+    @NotNull
+    private LocalDateTime startAt;
 
-    private LocalDateTime completedAt;
+    @NotNull
+    private LocalDateTime endAt;
+
+    @NotNull
+    private Integer uncompletedMissionCounts;
+
+    public void submitMission() {
+        this.uncompletedMissionCounts = Math.max(this.uncompletedMissionCounts - 1, 0);
+    }
 }

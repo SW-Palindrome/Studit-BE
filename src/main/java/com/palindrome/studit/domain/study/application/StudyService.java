@@ -1,10 +1,12 @@
 package com.palindrome.studit.domain.study.application;
 
+import com.palindrome.studit.domain.mission.application.MissionService;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.dto.MissionUrlRequestDTO;
+import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.dao.UserRepository;
 import com.palindrome.studit.domain.user.domain.User;
@@ -29,12 +31,13 @@ public class StudyService {
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
     private final StudyEnrollmentRepository studyEnrollmentRepository;
+    private final MissionService missionStateService;
 
     @Transactional
     public Study createStudy(Long userId, CreateStudyDTO createStudyDTO) {
         User user = userRepository.getReferenceById(userId);
 
-        Mission mission = Mission.builder()
+        MissionInfo mission = MissionInfo.builder()
                 .missionType(createStudyDTO.getMissionType())
                 .missionCountPerWeek(createStudyDTO.getMissionCountPerWeek())
                 .finePerMission(createStudyDTO.getFinePerMission())
@@ -64,6 +67,21 @@ public class StudyService {
         studyEnrollmentRepository.save(studyEnrollment);
 
         return study;
+    }
+
+    @Transactional
+    public void start(Long userId, Long studyId) throws AlreadyStartedStudyException, AccessDeniedException {
+        StudyEnrollment leaderStudyEnrollment = studyEnrollmentRepository.findByUser_UserIdAndStudy_StudyId(userId, studyId).orElseThrow();
+
+        if (!leaderStudyEnrollment.getRole().equals(StudyRole.LEADER)) throw new AccessDeniedException("허가되지 않은 스터디입니다.");
+
+        Study study = leaderStudyEnrollment.getStudy();
+
+        study.start();
+
+        for (StudyEnrollment studyEnrollment : studyEnrollmentRepository.findAllByStudy_StudyId(studyId)) {
+            missionStateService.createMissionStates(studyEnrollment);
+        }
     }
 
     public Page<Study> getList(int page) {

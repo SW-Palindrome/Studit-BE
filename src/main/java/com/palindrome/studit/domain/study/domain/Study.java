@@ -1,5 +1,7 @@
 package com.palindrome.studit.domain.study.domain;
 
+import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
+import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.global.utils.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -52,7 +54,7 @@ public class Study extends BaseEntity {
     private StudyStatus status;
 
     @Embedded
-    private Mission mission;
+    private MissionInfo mission;
 
     @Size(max = 5)
     @Column(unique = true)
@@ -60,4 +62,9 @@ public class Study extends BaseEntity {
 
     @OneToMany(mappedBy = "study")
     private List<StudyEnrollment> enrollments = new ArrayList<>();
+
+    public void start() {
+        if (!this.status.equals(StudyStatus.UPCOMING)) throw new AlreadyStartedStudyException();
+        this.status = StudyStatus.IN_PROGRESS;
+    }
 }
