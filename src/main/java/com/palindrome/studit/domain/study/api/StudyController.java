@@ -3,6 +3,7 @@ package com.palindrome.studit.domain.study.api;
 import com.palindrome.studit.domain.study.application.StudyService;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
+import com.palindrome.studit.domain.study.dto.MissionUrlRequestDTO;
 import com.palindrome.studit.domain.study.dto.StudyResponseDTO;
 import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
@@ -54,6 +55,13 @@ public class StudyController {
     public ResponseEntity<Object> enrollStudy(Authentication authentication, @PathVariable("shareCode") String shareCode) throws DuplicatedStudyEnrollmentException {
         studyService.enrollWithShareCode(Long.parseLong(authentication.getName()), shareCode);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
+    @PatchMapping("/{studyId}/missions/url")
+    public ResponseEntity<Object> updateMissionurl(Authentication authentication, @PathVariable("studyId") Long studyId, @Valid @RequestBody MissionUrlRequestDTO missionUrlRequestDTO) {
+        studyService.updateMissionUrl(Long.parseLong(authentication.getName()), studyId, missionUrlRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @ExceptionHandler({ DuplicatedStudyEnrollmentException.class })

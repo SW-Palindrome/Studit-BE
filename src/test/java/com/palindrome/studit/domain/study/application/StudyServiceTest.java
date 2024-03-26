@@ -6,11 +6,13 @@ import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
+import com.palindrome.studit.domain.study.dto.MissionUrlRequestDTO;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.domain.OAuthProviderType;
 import com.palindrome.studit.domain.user.domain.User;
 import com.palindrome.studit.global.config.security.application.TokenService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +23,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
@@ -275,5 +279,137 @@ class StudyServiceTest {
         //Then
         assertThat(studyEnrollment).isNotNull();
         assertThat(studyEnrollmentRepository.count()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("미션 주소 수정 성공 테스트")
+    void updateMissionUrlTest() {
+        //Given
+        User user = authService.createUser("user@email.com", OAuthProviderType.GITHUB, "providerId1");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(false)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(user.getUserId(), createStudyDTO);
+        MissionUrlRequestDTO missionUrlRequestDTO = MissionUrlRequestDTO.builder()
+                .missionUrl("https://github.com/username").build();
+
+        //When
+        studyService.updateMissionUrl(user.getUserId(), study.getStudyId(), missionUrlRequestDTO);
+
+        //Then
+        Optional<StudyEnrollment> optionalStudyEnrollment = studyEnrollmentRepository.findByUserAndStudy(user, study);
+        StudyEnrollment studyEnrollment = optionalStudyEnrollment.get();
+        assertThat(studyEnrollment.getMissionUrl().equals(missionUrlRequestDTO.getMissionUrl()));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 스터디에 대한 미션 주소 수정 실패 테스트")
+    void updateMissionUrlForNonExistingStudyTest() {
+        User user = authService.createUser("user@email.com", OAuthProviderType.GITHUB, "providerId1");
+        Long nonExistingStudyId = 1000L;
+        MissionUrlRequestDTO missionUrlRequestDTO = MissionUrlRequestDTO.builder()
+                .missionUrl("https://github.com/username").build();
+
+        //When, Then
+        assertThrows(EntityNotFoundException.class, () -> {studyService.updateMissionUrl(user.getUserId(), nonExistingStudyId, missionUrlRequestDTO);});
+    }
+
+    @Test
+    @DisplayName("참여 내역 없는 스터디 미션 수정 실패 테스트")
+    void updateMissionUrlNonExistingStudyEnrollmentTest() {
+        //Given
+        User studyLeader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User user = authService.createUser("user@email.com", OAuthProviderType.GITHUB, "providerId1");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(false)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(studyLeader.getUserId(), createStudyDTO);
+        MissionUrlRequestDTO missionUrlRequestDTO = MissionUrlRequestDTO.builder()
+                .missionUrl("https://github.com/username").build();
+
+        //When, Then
+        assertThrows(EntityNotFoundException.class, () -> {
+            studyService.updateMissionUrl(user.getUserId(), study.getStudyId(), missionUrlRequestDTO);
+        });
+    }
+
+    @Test
+    @DisplayName("github 미션 주소 검증 테스트")
+    void validateGithubMissionUrlTest() {
+        //Given
+        MissionType missionTypeGithub = MissionType.GITHUB;
+        String githubTestUrl = "https://github.com/username";
+
+        //When
+        String githubMissionUrl = studyService.validateMissionUrl(missionTypeGithub, githubTestUrl);
+
+        //Then
+        assertEquals(githubTestUrl, githubMissionUrl);
+    }
+
+    @Test
+    @DisplayName("velog 미션 주소 검증 테스트")
+    void validateVelogMissionUrlTest() {
+        //Given
+        MissionType missionTypeVelog = MissionType.VELOG;
+        String velogTestUrl = "https://velog.io/@username";
+
+        //When
+        String velogMissionUrl = studyService.validateMissionUrl(missionTypeVelog, velogTestUrl);
+
+        //Then
+        assertEquals(velogTestUrl, velogMissionUrl);
+    }
+
+    @Test
+    @DisplayName("velog 미션 주소 검증 실패 테스트")
+    void validateVelogMissionUrlFailureTest() {
+        //Given
+        MissionType missionTypeVelog = MissionType.VELOG;
+        String velogTestUrl = "https://velog.io/username";
+        String githubTestUrl = "https://github.com/username";
+
+        //When, Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeVelog, githubTestUrl);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeVelog, velogTestUrl);
+        });
+    }
+
+    @Test
+    @DisplayName("github 미션 주소 검증 실패 테스트")
+    void validateGithubMissionUrlFailureTest() {
+        // Given
+        MissionType missionTypeGithub = MissionType.GITHUB;
+        String githubTestUrl = "https://github.com/@username";
+        String velogTestUrl = "https://velog.io/@username";
+
+        // When, Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeGithub, velogTestUrl);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            studyService.validateMissionUrl(missionTypeGithub, githubTestUrl);
+        });
     }
 }
