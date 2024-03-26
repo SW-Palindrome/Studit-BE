@@ -125,7 +125,7 @@ class MissionStateServiceTest {
                 .build();
         Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
         StudyEnrollment studyEnrollment = studyService.enroll(member.getUserId(), study.getStudyId());
-        List<MissionState> missionStates = missionService.createMissionStates(studyEnrollment);
+        missionService.createMissionStates(studyEnrollment);
 
         //When, Then
         assertThrows(NoSuchElementException.class, () -> missionService.submitMission(studyEnrollment, "https://completed-mission.com", LocalDateTime.now().plusDays(10)));
