@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
@@ -20,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/token-info/{accessToken}")
-    public JwtDTO getJwtInfo(@PathVariable String accessToken) throws InvalidTokenException {
+    public JwtDTO getJwtInfo(@PathVariable("accessToken") String accessToken) throws InvalidTokenException {
         return JwtDTO.builder()
                 .sub(tokenService.parseSubject(accessToken))
                 .exp(tokenService.parseExpiration(accessToken))

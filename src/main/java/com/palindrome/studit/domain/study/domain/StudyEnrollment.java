@@ -31,4 +31,8 @@ public class StudyEnrollment extends BaseEntity {
     private StudyRole role;
 
     private String missionUrl;
+
+    public void updateMissionUrl(String missionUrl) {
+        this.missionUrl = missionUrl;
+    }
 }
