@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,8 @@ public class WeeklyMissionStateResponseDTO {
         private String completedMissionUrl;
 
         public static List<CompletedMissionInfo> toDTO(List<MissionLog> missionLogs) {
+            if (missionLogs == null || missionLogs.isEmpty()) return new ArrayList<>();
+
             return missionLogs.stream().map(missionLog -> CompletedMissionInfo.builder()
                     .completedAt(missionLog.getCompletedAt())
                     .completedMissionUrl(missionLog.getCompletedMissionUrl())
