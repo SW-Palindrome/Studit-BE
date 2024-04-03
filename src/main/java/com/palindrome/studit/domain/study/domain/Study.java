@@ -60,6 +60,8 @@ public class Study extends BaseEntity {
     @Column(unique = true)
     private String shareCode;
 
+    private String tag;
+
     @OneToMany(mappedBy = "study")
     private List<StudyEnrollment> enrollments = new ArrayList<>();
 
