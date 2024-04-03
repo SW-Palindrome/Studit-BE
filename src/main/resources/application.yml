@@ -33,5 +33,5 @@ cron:
     fetch-interval: 0 */10 * ? * *
     fetch-days: 1
   velog:
-    fetch-interval: 0 */30 * ? * *
-    fetch-days: 1
+    fetch-interval: 0 */10 * ? * *
+    fetch-minutes: 10
