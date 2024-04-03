@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
 import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
 import com.palindrome.studit.domain.mission.domain.MissionLog;
-import com.palindrome.studit.domain.mission.domain.MissionState;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.domain.MissionType;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
@@ -106,24 +105,9 @@ public class VelogMissionService {
                     continue;
                 }
 
-                if (!isThisMissionStateValid(studyEnrollment, completedAt)) {
-                    continue;
-                }
-
                 getOrCreateMissionLog(studyEnrollment, completedMissionUrl, completedAt);
             }
         }
-    }
-
-    private boolean isThisMissionStateValid(StudyEnrollment studyEnrollment, LocalDateTime completedAt) {
-        Optional<MissionState> missionStateOptional = missionStateRepository.findByStudyEnrollmentAndStartAtLessThanEqualAndEndAtGreaterThanEqual(studyEnrollment, completedAt, completedAt);
-        return missionStateOptional.filter(missionState -> {
-            LocalDateTime startAt = missionState.getStartAt();
-            LocalDateTime endAt = missionState.getEndAt();
-            Integer uncompletedMissionCounts = missionState.getUncompletedMissionCounts();
-
-            return completedAt.isAfter(startAt) && completedAt.isBefore(endAt) && uncompletedMissionCounts > 0;
-        }).isPresent();
     }
 
     private MissionLog getOrCreateMissionLog(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
