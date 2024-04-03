@@ -1,24 +1,32 @@
-package com.palindrome.studit.domain.study.application;
+package com.palindrome.studit.domain.mission.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
+import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
+import com.palindrome.studit.domain.mission.domain.MissionLog;
+import com.palindrome.studit.domain.mission.domain.MissionState;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
-import com.palindrome.studit.domain.study.dao.StudyLogRepository;
 import com.palindrome.studit.domain.study.domain.MissionType;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
-import com.palindrome.studit.domain.study.domain.StudyLog;
 import com.palindrome.studit.domain.study.domain.StudyStatus;
-import com.palindrome.studit.domain.study.exception.VelogPostException;
+import com.palindrome.studit.domain.study.dto.VelogPostRequestDTO;
+import com.palindrome.studit.domain.study.variable.Variables;
+import com.palindrome.studit.domain.study.variable.VelogPostVariables;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +34,16 @@ import java.util.regex.Pattern;
 public class VelogMissionService {
 
     private final StudyEnrollmentRepository studyEnrollmentRepository;
-    private final StudyLogRepository studyLogRepository;
-    private final String VELOG_RSS_FEED_URL = "https://v2.velog.io/rss";
-    private final String VELOG_RSS_ITEM_PATTERN ="<link>(.+?)</link>.*?<pubDate>(.+?)</pubDate>";
-    private final RestClient restClient = RestClient.create(VELOG_RSS_FEED_URL);
+    private final MissionLogRepository missionLogRepository;
+    private final MissionStateRepository missionStateRepository;
+    private final MissionService missionService;
 
-    @Value("${cron.velog.fetch-days}")
-    private int FETCH_DAYS;
+    private final String VELOG_URL = "https://velog.io/@";
+    private final String VELOG_GRAPHQL_URL = "https://v3.velog.io/graphql";
+    private final RestTemplate restTemplate;
+
+    @Value("${cron.velog.fetch-minutes}")
+    private int FETCH_MINUTES;
 
     @Scheduled(cron = "${cron.velog.fetch-interval}")
     public void fetchVelogPost() {
@@ -41,43 +52,82 @@ public class VelogMissionService {
 
         for (StudyEnrollment studyEnrollment : studyEnrollments) {
             String missionUrl = studyEnrollment.getMissionUrl();
+            String missionTag = studyEnrollment.getStudy().getTag();
 
-            if (missionUrl == null || missionUrl.isBlank()) {
+            if (missionUrl == null || missionTag == null) {
                 continue;
             }
 
-            String username = missionUrl.substring("https://velog.io/@".length());
-            String rssFeed = restClient.get()
-                    .uri("/{username}",username)
-                    .retrieve()
-                    .onStatus(status -> status.value() == 404, (request, response) -> {
-                        throw new VelogPostException();
-                    })
-                    .body(String.class);
+            String username = missionUrl.substring(VELOG_URL.length());
+            String query = """
+                    query Posts($username: String!, $tag: String!) {
+                        posts(input: { username: $username, tag: $tag }) {
+                            title
+                            released_at
+                            url_slug
+                        }
+                    }
+                    """;
 
-            if (rssFeed == null) {
+            Variables variables = VelogPostVariables.builder()
+                    .username(username)
+                    .tag(missionTag)
+                    .build();
+
+            VelogPostRequestDTO velogPostRequestDTO = VelogPostRequestDTO.builder()
+                    .queryFieldName("Posts")
+                    .variables(variables)
+                    .query(query)
+                    .build();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("content-type", "application/graphql");
+            HttpEntity<VelogPostRequestDTO> requestEntity = new HttpEntity<>(velogPostRequestDTO);
+            ResponseEntity<JsonNode> response = restTemplate.postForEntity(VELOG_GRAPHQL_URL, requestEntity, JsonNode.class);
+
+            if (!response.hasBody()) {
                 continue;
             }
 
-            Pattern pattern = Pattern.compile(VELOG_RSS_ITEM_PATTERN);
-            Matcher matcher = pattern.matcher(rssFeed);
+            JsonNode responseData = response.getBody().get("data");
 
-            while (matcher.find()) {
-                String url = matcher.group(1);
-                String date = matcher.group(2);
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-                LocalDateTime completedAt = LocalDateTime.parse(date, formatter);
+            if (!responseData.has("posts")) {
+                continue;
+            }
 
-                if (completedAt.isBefore(LocalDateTime.now().minusDays(FETCH_DAYS))) {
+            JsonNode posts = responseData.get("posts");
+
+            for (JsonNode post : posts) {
+                String urlSlug = post.get("url_slug").asText();
+                String completedMissionUrl = missionUrl + "/" + urlSlug;
+                LocalDateTime completedAt = LocalDateTime.parse(post.get("released_at").asText(), DateTimeFormatter.ISO_ZONED_DATE_TIME);
+
+                if (completedAt.isBefore(LocalDateTime.now().minusMinutes(FETCH_MINUTES))) {
                     continue;
                 }
 
-                StudyLog studyLog = StudyLog.builder()
-                        .studyEnrollment(studyEnrollment)
-                        .completedMissionUrl(url)
-                        .completedAt(completedAt).build();
-                studyLogRepository.save(studyLog);
+                if (!isThisMissionStateValid(studyEnrollment, completedAt)) {
+                    continue;
+                }
+
+                getOrCreateMissionLog(studyEnrollment, completedMissionUrl, completedAt);
             }
         }
+    }
+
+    private boolean isThisMissionStateValid(StudyEnrollment studyEnrollment, LocalDateTime completedAt) {
+        Optional<MissionState> missionStateOptional = missionStateRepository.findByStudyEnrollmentAndStartAtLessThanEqualAndEndAtGreaterThanEqual(studyEnrollment, completedAt, completedAt);
+        return missionStateOptional.filter(missionState -> {
+            LocalDateTime startAt = missionState.getStartAt();
+            LocalDateTime endAt = missionState.getEndAt();
+            Integer uncompletedMissionCounts = missionState.getUncompletedMissionCounts();
+
+            return completedAt.isAfter(startAt) && completedAt.isBefore(endAt) && uncompletedMissionCounts > 0;
+        }).isPresent();
+    }
+
+    private MissionLog getOrCreateMissionLog(StudyEnrollment studyEnrollment, String completedMissionUrl, LocalDateTime completedAt) {
+        return missionLogRepository.findByCompletedMissionUrl(completedMissionUrl)
+                .orElseGet(() -> missionService.submitMission(studyEnrollment, completedMissionUrl, completedAt));
     }
 }
