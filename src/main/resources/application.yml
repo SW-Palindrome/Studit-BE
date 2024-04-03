@@ -32,3 +32,6 @@ cron:
   github:
     fetch-interval: 0 */10 * ? * *
     fetch-days: 1
+  velog:
+    fetch-interval: 0 */10 * ? * *
+    fetch-minutes: 10
