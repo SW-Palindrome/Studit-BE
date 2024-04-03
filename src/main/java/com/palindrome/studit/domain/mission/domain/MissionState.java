@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -33,6 +35,9 @@ public class MissionState extends BaseEntity {
 
     @NotNull
     private Integer uncompletedMissionCounts;
+
+    @OneToMany(mappedBy = "missionState")
+    private List<MissionLog> missionLogs = new ArrayList<>();
 
     public void submitMission() {
         this.uncompletedMissionCounts = Math.max(this.uncompletedMissionCounts - 1, 0);
