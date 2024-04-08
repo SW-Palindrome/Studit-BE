@@ -4,11 +4,11 @@ import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
 import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
 import com.palindrome.studit.domain.mission.domain.MissionLog;
 import com.palindrome.studit.domain.mission.domain.MissionState;
+import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +24,7 @@ import java.util.List;
 public class MissionService {
     private final MissionStateRepository missionStateRepository;
     private final MissionLogRepository missionLogRepository;
+    private final StudyRepository studyRepository;
     private static final int MISSION_DURATION_DATE = 7;
 
     @Transactional
@@ -63,5 +64,13 @@ public class MissionService {
     public Page<MissionState> listMyWeeklyMissionStates(Integer page, Long userId, LocalDateTime today) {
         Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "missionStateId");
         return missionStateRepository.findAllByStudyEnrollment_User_UserIdAndStartAtBeforeAndEndAtAfter(pageable, userId, today, today);
+    }
+
+
+    @Transactional
+    public Page<MissionLog> listAllActivities(Integer page, Long userId) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.Direction.DESC, "completedAt");
+        List<Study> studies = studyRepository.findAllByEnrollments_User_UserId(userId);
+        return missionLogRepository.findAllByMissionState_StudyEnrollment_StudyIn(pageable, studies);
     }
 }
