@@ -2,6 +2,7 @@ package com.palindrome.studit.domain.study.api;
 
 import com.palindrome.studit.domain.study.application.StudyService;
 import com.palindrome.studit.domain.study.domain.MissionType;
+import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.domain.StudyPurpose;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.user.application.AuthService;
@@ -108,12 +109,25 @@ class StudyControllerTest {
     void updateMissionUrlTest() throws Exception {
         //Given
         User user = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId");
-        createStudies(user, true, 1);
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디 ")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+
+        Study study = studyService.createStudy(user.getUserId(), createStudyDTO);
         String accessToken = tokenService.createAccessToken(user.getUserId().toString());
 
         //When
         String requestJson = "{\"mission_url\": \"https://github.com/palindrome\"}";
-        ResultActions mockResult = mockMvc.perform(patch("/studies/1/missions/url")
+        ResultActions mockResult = mockMvc.perform(patch("/studies/{studyId}/missions/url", study.getStudyId())
                 .header("Authorization", "Bearer " + accessToken)
                 .content(requestJson)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -127,12 +141,25 @@ class StudyControllerTest {
     void updateMissionUrlFailureTest() throws Exception {
         //Given
         User user = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId");
-        createStudies(user, true, 1);
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디 ")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+
+        Study study = studyService.createStudy(user.getUserId(), createStudyDTO);
         String accessToken = tokenService.createAccessToken(user.getUserId().toString());
 
         //When
         String requestJson = "{\"mission_url\": \"https://velog.io/@palindrome\"}";
-        ResultActions mockResult = mockMvc.perform(patch("/studies/1/missions/url")
+        ResultActions mockResult = mockMvc.perform(patch("/studies/{studyId}/missions/url", study.getStudyId())
                 .header("Authorization", "Bearer " + accessToken)
                 .content(requestJson)
                 .contentType(MediaType.APPLICATION_JSON));
