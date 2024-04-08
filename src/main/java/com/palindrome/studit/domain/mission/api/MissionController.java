@@ -27,7 +27,7 @@ public class MissionController {
         return WeeklyMissionStateResponseDTO.toDTOPage(missionStates);
     }
 
-    @GetMapping("/activities")
+    @GetMapping("/my/activities")
     public Page<ActivityDTO> listActivities(Authentication authentication, @RequestParam(value = "page", defaultValue = "0") int page) {
         Page<MissionLog> missionLogs = missionService.listAllActivities(page, Long.parseLong(authentication.getName()));
         return ActivityDTO.toDTOPage(missionLogs);
