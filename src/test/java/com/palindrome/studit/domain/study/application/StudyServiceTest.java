@@ -443,4 +443,30 @@ class StudyServiceTest {
         assertThat(studyDetailDTO).isNotNull();
         assertThat(studyDetailDTO.getName()).isNotNull();
     }
+
+    @Test
+    @DisplayName("스터디 상세정보 조회 실패 테스트")
+    void getStudyDetailsFailureTest() {
+        //Given
+        User leader = authService.createUser("user@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(false)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+
+        //When, Then
+        assertThrows(EntityNotFoundException.class, () -> {
+            studyService.getStudyDetails(member.getUserId(), study.getStudyId());
+        });
+    }
 }
