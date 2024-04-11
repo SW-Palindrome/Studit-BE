@@ -6,6 +6,7 @@ import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.dto.MissionUrlRequestDTO;
+import com.palindrome.studit.domain.study.dto.StudyDetailDTO;
 import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.dao.UserRepository;
@@ -155,5 +156,24 @@ public class StudyService {
             throw new IllegalArgumentException("잘못된 주소입니다.");
         }
         return missionUrl;
+    }
+
+    public StudyDetailDTO getStudyDetails(Long userId, Long studyId) {
+        Study study = studyRepository.findById(studyId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 스터디입니다."));
+        if (!study.getIsPublic()) {
+            studyEnrollmentRepository.findByUser_UserIdAndStudy_StudyId(userId, studyId).orElseThrow(() -> new EntityNotFoundException("사용자는 해당 스터디에 참여하고 있지 않습니다."));
+        }
+        return StudyDetailDTO.builder()
+                .studyId(study.getStudyId())
+                .name(study.getName())
+                .description(study.getDescription())
+                .purpose(study.getPurpose())
+                .missionType(study.getMission().getMissionType())
+                .missionCountPerWeek(study.getMission().getMissionCountPerWeek())
+                .finePerMission(study.getMission().getFinePerMission())
+                .studyImage(study.getStudyImage())
+                .startAt(study.getStartAt())
+                .endAt(study.getEndAt())
+                .isPublic(study.getIsPublic()).build();
     }
 }
