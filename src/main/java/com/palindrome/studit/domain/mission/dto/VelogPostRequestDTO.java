@@ -1,4 +1,4 @@
-package com.palindrome.studit.domain.study.dto;
+package com.palindrome.studit.domain.mission.dto;
 
 import com.palindrome.studit.domain.mission.variable.Variables;
 import lombok.Builder;
