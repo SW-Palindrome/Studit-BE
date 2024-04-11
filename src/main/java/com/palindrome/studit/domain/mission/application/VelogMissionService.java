@@ -2,15 +2,14 @@ package com.palindrome.studit.domain.mission.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
-import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
 import com.palindrome.studit.domain.mission.domain.MissionLog;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.domain.MissionType;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import com.palindrome.studit.domain.study.domain.StudyStatus;
-import com.palindrome.studit.domain.study.dto.VelogPostRequestDTO;
-import com.palindrome.studit.domain.study.variable.Variables;
-import com.palindrome.studit.domain.study.variable.VelogPostVariables;
+import com.palindrome.studit.domain.mission.dto.VelogPostRequestDTO;
+import com.palindrome.studit.domain.mission.variable.Variables;
+import com.palindrome.studit.domain.mission.variable.VelogPostVariables;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +32,6 @@ public class VelogMissionService {
 
     private final StudyEnrollmentRepository studyEnrollmentRepository;
     private final MissionLogRepository missionLogRepository;
-    private final MissionStateRepository missionStateRepository;
     private final MissionService missionService;
 
     private final String VELOG_URL = "https://velog.io/@";
