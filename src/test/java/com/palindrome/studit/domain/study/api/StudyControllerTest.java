@@ -180,4 +180,40 @@ class StudyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("신규 스터디"));
     }
+
+    @Test
+    @DisplayName("스터디 미션 내역 조회 테스트")
+    void listStudyMissionsTest() throws Exception{
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(10))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        StudyEnrollment studyEnrollment = studyService.enroll(member.getUserId(), study.getStudyId());
+        studyService.start(leader.getUserId(), study.getStudyId());
+        missionService.submitMission(studyEnrollment, "https://completed1.com", LocalDateTime.now().plusDays(1));
+        missionService.submitMission(studyEnrollment, "https://completed2.com", LocalDateTime.now().plusDays(2));
+        String accessToken = tokenService.createAccessToken(member.getUserId().toString());
+
+        //When
+        ResultActions mockResult = mockMvc.perform(get("/studies/{studyId}/missions",study.getStudyId())
+                .header("Authorization", "Bearer " + accessToken)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //Then
+        mockResult
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(6)));
+    }
 }
