@@ -161,4 +161,31 @@ class MissionStateServiceTest {
         //Then
         assertThat(missions.getTotalElements()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("미션 수행 내역 조회 실패 테스트")
+    void listStudyMissionsFailureTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(28))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        studyService.start(leader.getUserId(), study.getStudyId());
+
+        //When, Then
+        assertThrows(EntityNotFoundException.class, () -> {
+            missionService.listStudyMissions(0, member.getUserId(), study.getStudyId());
+        });
+    }
 }
