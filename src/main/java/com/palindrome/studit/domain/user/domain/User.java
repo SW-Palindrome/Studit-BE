@@ -48,4 +48,6 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<StudyEnrollment> studyEnrollments = new ArrayList<>();
+
+    public void changeNickname(String nickname) { this.nickname = nickname; }
 }
