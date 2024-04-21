@@ -61,14 +61,14 @@ public class MissionService {
     }
 
     @Transactional
-    public Page<MissionState> listMyWeeklyMissionStates(Integer page, Long userId, LocalDateTime today) {
+    public Page<MissionState> listMyWeeklyMissionStates(int page, Long userId, LocalDateTime today) {
         Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "missionStateId");
         return missionStateRepository.findAllByStudyEnrollment_User_UserIdAndStartAtBeforeAndEndAtAfter(pageable, userId, today, today);
     }
 
 
     @Transactional
-    public Page<MissionLog> listAllActivities(Integer page, Long userId) {
+    public Page<MissionLog> listAllActivities(int page, Long userId) {
         Pageable pageable = PageRequest.of(page, 10, Sort.Direction.DESC, "completedAt");
         List<Study> studies = studyRepository.findAllByEnrollments_User_UserId(userId);
         return missionLogRepository.findAllByMissionState_StudyEnrollment_StudyIn(pageable, studies);
