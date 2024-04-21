@@ -43,7 +43,7 @@ public class User extends BaseEntity {
     @NotNull
     private UserRoleType roleType;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private OAuthInfo oAuthInfo;
 
     @OneToMany(mappedBy = "user")
