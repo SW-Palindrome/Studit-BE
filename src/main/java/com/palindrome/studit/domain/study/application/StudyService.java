@@ -89,8 +89,8 @@ public class StudyService {
 
     @Scheduled(cron = "${cron.study.start-interval}")
     @Transactional
-    public void startAll() {
-        for (Study study : studyRepository.findAllByStatusAndStartAtAfter(StudyStatus.UPCOMING, LocalDateTime.now())) {
+    public void startAllPrepared() {
+        for (Study study : studyRepository.findAllPreparedAt(LocalDateTime.now())) {
             study.start();
 
             for (StudyEnrollment studyEnrollment : study.getEnrollments()) {
