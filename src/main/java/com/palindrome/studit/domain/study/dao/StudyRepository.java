@@ -1,11 +1,13 @@
 package com.palindrome.studit.domain.study.dao;
 
 import com.palindrome.studit.domain.study.domain.Study;
+import com.palindrome.studit.domain.study.domain.StudyStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +19,5 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
     List<Study> findAllByEnrollments_User_UserId(Long userId);
 
     Optional<Study> findByShareCode(String shareCode);
+    List<Study> findAllByStatusAndStartAtAfter(StudyStatus studyStatus, LocalDateTime dateTime);
 }

@@ -19,9 +19,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -81,6 +84,18 @@ public class StudyService {
 
         for (StudyEnrollment studyEnrollment : studyEnrollmentRepository.findAllByStudy_StudyId(studyId)) {
             missionStateService.createMissionStates(studyEnrollment);
+        }
+    }
+
+    @Scheduled(cron = "${cron.study.start-interval}")
+    @Transactional
+    public void startAll() {
+        for (Study study : studyRepository.findAllByStatusAndStartAtAfter(StudyStatus.UPCOMING, LocalDateTime.now())) {
+            study.start();
+
+            for (StudyEnrollment studyEnrollment : study.getEnrollments()) {
+                missionStateService.createMissionStates(studyEnrollment);
+            }
         }
     }
 

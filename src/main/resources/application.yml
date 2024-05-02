@@ -30,8 +30,10 @@ jwt:
 
 cron:
   github:
-    fetch-interval: 0 */10 * ? * *
+    fetch-interval: 0 */10 * ? * *  # 10분에 한번
     fetch-days: 1
   velog:
-    fetch-interval: 0 */10 * ? * *
+    fetch-interval: 0 */10 * ? * *  # 10분에 한번
     fetch-minutes: 10
+  study:
+    start-interval: 10 0 * ? * *  # 매일 0시 10분
