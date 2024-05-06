@@ -4,9 +4,11 @@ import com.palindrome.studit.domain.mission.dao.MissionLogRepository;
 import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
 import com.palindrome.studit.domain.mission.domain.MissionLog;
 import com.palindrome.studit.domain.mission.domain.MissionState;
+import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
 import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import java.util.List;
 public class MissionService {
     private final MissionStateRepository missionStateRepository;
     private final MissionLogRepository missionLogRepository;
+    private final StudyEnrollmentRepository studyEnrollmentRepository;
     private final StudyRepository studyRepository;
     private static final int MISSION_DURATION_DATE = 7;
 
@@ -38,7 +41,7 @@ public class MissionService {
                     .studyEnrollment(studyEnrollment)
                     .startAt(dateTime)
                     .endAt(dateTime.plusDays(MISSION_DURATION_DATE))
-                    .uncompletedMissionCounts(study.getMission().getMissionCountPerWeek())
+                    .incompleteMissionCounts(study.getMission().getMissionCountPerWeek())
                     .build());
         }
 
@@ -72,5 +75,11 @@ public class MissionService {
         Pageable pageable = PageRequest.of(page, 10, Sort.Direction.DESC, "completedAt");
         List<Study> studies = studyRepository.findAllByEnrollments_User_UserId(userId);
         return missionLogRepository.findAllByMissionState_StudyEnrollment_StudyIn(pageable, studies);
+    }
+
+    public Page<MissionState> listStudyMissions(int page, Long userId, Long studyId) {
+        studyEnrollmentRepository.findByUser_UserIdAndStudy_StudyId(userId, studyId).orElseThrow(() -> new EntityNotFoundException("사용자는 해당 스터디에 참여하고 있지 않습니다."));
+        Pageable pageable = PageRequest.of(page, 20, Sort.Direction.DESC, "startAt");
+        return missionStateRepository.findByStudyEnrollment_Study_StudyIdAndStartAtBefore(pageable, studyId, LocalDateTime.now());
     }
 }

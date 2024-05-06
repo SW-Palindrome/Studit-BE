@@ -7,6 +7,7 @@ import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.*;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.dto.MissionUrlRequestDTO;
+import com.palindrome.studit.domain.study.dto.StudyDetailDTO;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
 import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.domain.OAuthProviderType;
@@ -25,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -410,6 +412,61 @@ class StudyServiceTest {
         });
         assertThrows(IllegalArgumentException.class, () -> {
             studyService.validateMissionUrl(missionTypeGithub, githubTestUrl);
+        });
+    }
+
+    @Test
+    @DisplayName("스터디 상세정보 조회 성공 테스트")
+    void getStudyDetailsTest() {
+        //Given
+        User leader = authService.createUser("user@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        studyService.enroll(member.getUserId(), study.getStudyId());
+
+        //When
+        StudyDetailDTO studyDetailDTO = studyService.getStudyDetails(member.getUserId(), study.getStudyId());
+
+        //Then
+        assertThat(studyDetailDTO).isNotNull();
+        assertThat(studyDetailDTO.getName()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("스터디 상세정보 조회 실패 테스트")
+    void getStudyDetailsFailureTest() {
+        //Given
+        User leader = authService.createUser("user@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(7))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(false)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+
+        //When, Then
+        assertThrows(EntityNotFoundException.class, () -> {
+            studyService.getStudyDetails(member.getUserId(), study.getStudyId());
         });
     }
 }

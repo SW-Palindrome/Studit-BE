@@ -13,11 +13,13 @@ import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.domain.OAuthProviderType;
 import com.palindrome.studit.domain.user.domain.User;
 import com.palindrome.studit.global.config.security.application.TokenService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -102,7 +104,7 @@ class MissionStateServiceTest {
 
         //Then
         assertThat(missionLogRepository.count()).isEqualTo(1);
-        assertThat(missionState.getUncompletedMissionCounts()).isEqualTo(2);
+        assertThat(missionState.getIncompleteMissionCounts()).isEqualTo(2);
     }
 
     @Test
@@ -129,5 +131,61 @@ class MissionStateServiceTest {
 
         //When, Then
         assertThrows(NoSuchElementException.class, () -> missionService.submitMission(studyEnrollment, "https://completed-mission.com", LocalDateTime.now().plusDays(10)));
+    }
+
+    @Test
+    @DisplayName("미션 수행 내역 조회 테스트")
+    void listStudyMissionsTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(28))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        studyService.enroll(member.getUserId(), study.getStudyId());
+        studyService.start(leader.getUserId(), study.getStudyId());
+
+        //When
+        Page<MissionState> missions = missionService.listStudyMissions(0, member.getUserId(), study.getStudyId());
+
+        //Then
+        assertThat(missions.getTotalElements()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("미션 수행 내역 조회 실패 테스트")
+    void listStudyMissionsFailureTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        User member = authService.createUser("member@email.com", OAuthProviderType.GITHUB, "providerId2");
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(LocalDateTime.now())
+                .endAt(LocalDateTime.now().plusDays(28))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        Study study = studyService.createStudy(leader.getUserId(), createStudyDTO);
+        studyService.start(leader.getUserId(), study.getStudyId());
+
+        //When, Then
+        assertThrows(EntityNotFoundException.class, () -> {
+            missionService.listStudyMissions(0, member.getUserId(), study.getStudyId());
+        });
     }
 }

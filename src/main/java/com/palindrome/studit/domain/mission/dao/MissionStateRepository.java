@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface MissionStateRepository extends JpaRepository<MissionState, Long> {
     List<MissionState> findAllByStudyEnrollment_User_UserId(Long userId);
-
     Optional<MissionState> findByStudyEnrollment_StudyEnrollmentIdAndStartAtBeforeAndEndAtAfter(Long studyEnrollmentId, LocalDateTime startAt, LocalDateTime endAt);
     Page<MissionState> findAllByStudyEnrollment_User_UserIdAndStartAtBeforeAndEndAtAfter(Pageable pageable, Long userId, LocalDateTime startAt, LocalDateTime endAt);
+    Page<MissionState> findByStudyEnrollment_Study_StudyIdAndStartAtBefore(Pageable page, Long studyId, LocalDateTime now);
 }

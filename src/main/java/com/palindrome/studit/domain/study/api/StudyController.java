@@ -1,9 +1,13 @@
 package com.palindrome.studit.domain.study.api;
 
+import com.palindrome.studit.domain.mission.application.MissionService;
+import com.palindrome.studit.domain.mission.domain.MissionState;
+import com.palindrome.studit.domain.mission.dto.StudyMissionsDTO;
 import com.palindrome.studit.domain.study.application.StudyService;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.dto.CreateStudyDTO;
 import com.palindrome.studit.domain.study.dto.MissionUrlRequestDTO;
+import com.palindrome.studit.domain.study.dto.StudyDetailDTO;
 import com.palindrome.studit.domain.study.dto.StudyResponseDTO;
 import com.palindrome.studit.domain.study.exception.AlreadyStartedStudyException;
 import com.palindrome.studit.domain.study.exception.DuplicatedStudyEnrollmentException;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/studies")
 public class StudyController {
     private final StudyService studyService;
+    private final MissionService missionService;
 
     @PostMapping
     public ResponseEntity<Object> createStudy(Authentication authentication, @Valid @RequestBody CreateStudyDTO createStudyDTO) {
@@ -62,6 +67,18 @@ public class StudyController {
     public ResponseEntity<Object> updateMissionurl(Authentication authentication, @PathVariable("studyId") Long studyId, @Valid @RequestBody MissionUrlRequestDTO missionUrlRequestDTO) {
         studyService.updateMissionUrl(Long.parseLong(authentication.getName()), studyId, missionUrlRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/{studyId}/details")
+    public ResponseEntity<StudyDetailDTO> getStudyDetails(Authentication authentication, @PathVariable("studyId") Long studyId) {
+        StudyDetailDTO studyDetailDTO = studyService.getStudyDetails(Long.parseLong(authentication.getName()), studyId);
+        return ResponseEntity.status(HttpStatus.OK).body(studyDetailDTO);
+    }
+
+    @GetMapping("/{studyId}/missions")
+    public Page<StudyMissionsDTO> listStudyMissions(Authentication authentication, @PathVariable("studyId") Long studyId, @RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<MissionState> missions = missionService.listStudyMissions(page, Long.parseLong(authentication.getName()), studyId);
+        return StudyMissionsDTO.toDTOPage(missions);
     }
 
     @ExceptionHandler({ DuplicatedStudyEnrollmentException.class })

@@ -40,7 +40,7 @@ public class WeeklyMissionStateResponseDTO {
     private LocalDateTime endAt;
     private MissionType missionType;
     private Integer missionCountPerWeek;
-    private Integer uncompletedMissionCounts;
+    private Integer incompleteMissionCounts;
     private List<CompletedMissionInfo> completedMissionInfoList;
 
     public static Page<WeeklyMissionStateResponseDTO> toDTOPage(Page<MissionState> missionStates) {
@@ -50,7 +50,7 @@ public class WeeklyMissionStateResponseDTO {
                 .endAt(missionState.getEndAt())
                 .missionType(missionState.getStudyEnrollment().getStudy().getMission().getMissionType())
                 .missionCountPerWeek(missionState.getStudyEnrollment().getStudy().getMission().getMissionCountPerWeek())
-                .uncompletedMissionCounts(missionState.getUncompletedMissionCounts())
+                .incompleteMissionCounts(missionState.getIncompleteMissionCounts())
                 .completedMissionInfoList(CompletedMissionInfo.toDTO(missionState.getMissionLogs()))
                 .build());
     }

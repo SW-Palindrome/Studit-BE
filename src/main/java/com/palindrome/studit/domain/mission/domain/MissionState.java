@@ -34,12 +34,12 @@ public class MissionState extends BaseEntity {
     private LocalDateTime endAt;
 
     @NotNull
-    private Integer uncompletedMissionCounts;
+    private Integer incompleteMissionCounts;
 
     @OneToMany(mappedBy = "missionState")
     private List<MissionLog> missionLogs = new ArrayList<>();
 
     public void submitMission() {
-        this.uncompletedMissionCounts = Math.max(this.uncompletedMissionCounts - 1, 0);
+        this.incompleteMissionCounts = Math.max(this.incompleteMissionCounts - 1, 0);
     }
 }
