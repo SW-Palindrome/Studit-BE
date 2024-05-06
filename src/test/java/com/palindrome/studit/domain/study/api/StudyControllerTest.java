@@ -11,7 +11,6 @@ import com.palindrome.studit.domain.user.application.AuthService;
 import com.palindrome.studit.domain.user.domain.OAuthProviderType;
 import com.palindrome.studit.domain.user.domain.User;
 import com.palindrome.studit.global.config.security.application.TokenService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

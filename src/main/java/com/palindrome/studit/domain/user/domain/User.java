@@ -43,9 +43,11 @@ public class User extends BaseEntity {
     @NotNull
     private UserRoleType roleType;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private OAuthInfo oAuthInfo;
 
     @OneToMany(mappedBy = "user")
     private List<StudyEnrollment> studyEnrollments = new ArrayList<>();
+
+    public void changeNickname(String nickname) { this.nickname = nickname; }
 }

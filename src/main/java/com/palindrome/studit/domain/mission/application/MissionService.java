@@ -5,6 +5,7 @@ import com.palindrome.studit.domain.mission.dao.MissionStateRepository;
 import com.palindrome.studit.domain.mission.domain.MissionLog;
 import com.palindrome.studit.domain.mission.domain.MissionState;
 import com.palindrome.studit.domain.study.dao.StudyEnrollmentRepository;
+import com.palindrome.studit.domain.study.dao.StudyRepository;
 import com.palindrome.studit.domain.study.domain.Study;
 import com.palindrome.studit.domain.study.domain.StudyEnrollment;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +27,7 @@ public class MissionService {
     private final MissionStateRepository missionStateRepository;
     private final MissionLogRepository missionLogRepository;
     private final StudyEnrollmentRepository studyEnrollmentRepository;
+    private final StudyRepository studyRepository;
     private static final int MISSION_DURATION_DATE = 7;
 
     @Transactional
@@ -62,9 +64,17 @@ public class MissionService {
     }
 
     @Transactional
-    public Page<MissionState> listMyWeeklyMissionStates(Integer page, Long userId, LocalDateTime today) {
+    public Page<MissionState> listMyWeeklyMissionStates(int page, Long userId, LocalDateTime today) {
         Pageable pageable = PageRequest.of(page, 10, Sort.DEFAULT_DIRECTION, "missionStateId");
         return missionStateRepository.findAllByStudyEnrollment_User_UserIdAndStartAtBeforeAndEndAtAfter(pageable, userId, today, today);
+    }
+
+
+    @Transactional
+    public Page<MissionLog> listAllActivities(int page, Long userId) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.Direction.DESC, "completedAt");
+        List<Study> studies = studyRepository.findAllByEnrollments_User_UserId(userId);
+        return missionLogRepository.findAllByMissionState_StudyEnrollment_StudyIn(pageable, studies);
     }
 
     public Page<MissionState> listStudyMissions(int page, Long userId, Long studyId) {
