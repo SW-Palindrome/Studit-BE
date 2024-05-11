@@ -3,7 +3,7 @@ WORKDIR /build
 COPY build.gradle settings.gradle /build
 COPY src src
 
-RUN gradle -x test build --parallel
+RUN gradle build -x test --parallel
 
 FROM openjdk:17
 WORKDIR /app
