@@ -56,4 +56,10 @@ jar {
 	}
 
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	enabled = false
+}
+
+springBoot {
+	mainClass = 'com.palindrome.studit.StuditApplication'
 }
