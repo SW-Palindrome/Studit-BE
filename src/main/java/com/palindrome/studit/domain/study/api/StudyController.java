@@ -62,7 +62,6 @@ public class StudyController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-
     @PatchMapping("/{studyId}/missions/url")
     public ResponseEntity<Object> updateMissionurl(Authentication authentication, @PathVariable("studyId") Long studyId, @Valid @RequestBody MissionUrlRequestDTO missionUrlRequestDTO) {
         studyService.updateMissionUrl(Long.parseLong(authentication.getName()), studyId, missionUrlRequestDTO);

@@ -18,10 +18,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -31,10 +34,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+
 @DataJpaTest
 @ActiveProfiles("test")
 @Import({StudyService.class, AuthService.class, TokenService.class, MissionService.class})
 class StudyServiceTest {
+    @Autowired
+    private TestEntityManager entityManager;
+
     @Autowired
     private StudyService studyService;
 
@@ -49,6 +56,22 @@ class StudyServiceTest {
 
     @Autowired
     private MissionStateRepository missionStateRepository;
+
+    Study createStudy(User user, LocalDateTime startAt) {
+        CreateStudyDTO createStudyDTO = CreateStudyDTO.builder()
+                .name("신규 스터디")
+                .startAt(startAt)
+                .endAt(LocalDateTime.now().plusDays(28))
+                .maxMembers(10L)
+                .purpose(StudyPurpose.ALGORITHM)
+                .description("테스트용 스터디입니다.")
+                .isPublic(true)
+                .missionType(MissionType.GITHUB)
+                .missionCountPerWeek(3)
+                .finePerMission(100_000)
+                .build();
+        return studyService.createStudy(user.getUserId(), createStudyDTO);
+    }
 
     @Test
     @DisplayName("스터디 그룹 생성 테스트")
@@ -105,6 +128,26 @@ class StudyServiceTest {
         assertThat(study.getStatus()).isEqualTo(StudyStatus.IN_PROGRESS);
         assertThat(missionStateRepository.findAllByStudyEnrollment_User_UserId(leader.getUserId())).isNotEmpty();
         assertThat(missionStateRepository.findAllByStudyEnrollment_User_UserId(member.getUserId())).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("모든 준비된 스터디 시작 테스트")
+    void startAllPreparedTest() {
+        //Given
+        User leader = authService.createUser("test@email.com", OAuthProviderType.GITHUB, "providerId1");
+        Study study1 = createStudy(leader, LocalDateTime.now().minusMinutes(1));
+        Study study2 = createStudy(leader, LocalDateTime.now().plusDays(1));
+        Study study3 = createStudy(leader, LocalDateTime.now().minusDays(1));
+        entityManager.clear();
+
+        //When
+        studyService.startAllPrepared();
+
+        //Then
+        assertThat(studyRepository.findById(study1.getStudyId()).orElseThrow().getStatus()).isEqualTo(StudyStatus.IN_PROGRESS);
+        assertThat(studyRepository.findById(study2.getStudyId()).orElseThrow().getStatus()).isEqualTo(StudyStatus.UPCOMING);
+        assertThat(studyRepository.findById(study3.getStudyId()).orElseThrow().getStatus()).isEqualTo(StudyStatus.IN_PROGRESS);
+        assertThat(missionStateRepository.findAllByStudyEnrollment_User_UserId(leader.getUserId())).isNotEmpty();
     }
 
     @Test
